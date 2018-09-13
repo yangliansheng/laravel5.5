@@ -12,10 +12,10 @@ return [
     | syntax for each one. Here you may set the default queue driver.
     |
     | Supported: "sync", "database", "beanstalkd", "sqs", "redis", "null"
-    |
+    | 队列的默认执行方式。sync 是直接执行， null 是不使用队列
     */
 
-    'default' => env('QUEUE_DRIVER', 'sync'),
+    'default' => env('QUEUE_DRIVER', 'sync'),//推荐使用redis作为队列执行方式
 
     /*
     |--------------------------------------------------------------------------
@@ -59,9 +59,9 @@ return [
 
         'redis' => [
             'driver' => 'redis',
-            'connection' => 'default',
+            'connection' => 'queue',//使用'queue'redis库
             'queue' => 'default',
-            'retry_after' => 90,
+            'retry_after' => 90,//任务最多处理多少秒后就被当做失败重试
         ],
 
     ],
@@ -74,7 +74,7 @@ return [
     | These options configure the behavior of failed queue job logging so you
     | can control which database and table are used to store the jobs that
     | have failed. You may change them to any database / table you wish.
-    |
+    | 失败任务存储位置，以供重试。看起来只能存在数据库里
     */
 
     'failed' => [

@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
+    'driver' => env('SESSION_DRIVER', 'file'),//线上指定file存储方式;线下使用redis作为session存储
 
     /*
     |--------------------------------------------------------------------------
@@ -29,9 +29,9 @@ return [
     |
     */
 
-    'lifetime' => env('SESSION_LIFETIME', 120),
+    'lifetime' => env('SESSION_LIFETIME', 120),//声明周期2小时
 
-    'expire_on_close' => false,
+    'expire_on_close' => false,//是否关闭浏览器session就过期
 
     /*
     |--------------------------------------------------------------------------
@@ -44,7 +44,7 @@ return [
     |
     */
 
-    'encrypt' => false,
+    'encrypt' => true,//session加密
 
     /*
     |--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ return [
     |
     */
 
-    'files' => storage_path('framework/sessions'),
+    'files' => storage_path('framework/sessions'),//使用文件存储时位置
 
     /*
     |--------------------------------------------------------------------------
@@ -69,8 +69,8 @@ return [
     | correspond to a connection in your database configuration options.
     |
     */
-
-    'connection' => null,
+    
+    'connection' => 'session',//使用哪个配置连接
 
     /*
     |--------------------------------------------------------------------------
@@ -83,7 +83,7 @@ return [
     |
     */
 
-    'table' => 'sessions',
+    'table' => 'sessions',//当使用database 存储时，存储哪个表
 
     /*
     |--------------------------------------------------------------------------
@@ -96,7 +96,7 @@ return [
     |
     */
 
-    'store' => null,
+    'store' => null,//使用缓存来存储 session
 
     /*
     |--------------------------------------------------------------------------

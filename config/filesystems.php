@@ -10,7 +10,7 @@ return [
     | Here you may specify the default filesystem disk that should be used
     | by the framework. The "local" disk, as well as a variety of cloud
     | based disks are available to your application. Just store away!
-    |
+    | Storage 默认操作的文件路径
     */
 
     'default' => env('FILESYSTEM_DRIVER', 'local'),
@@ -23,7 +23,7 @@ return [
     | Many applications store files both locally and in the cloud. For this
     | reason, you may specify a default "cloud" driver here. This driver
     | will be bound as the Cloud disk implementation in the container.
-    |
+    | 默认云存储
     */
 
     'cloud' => env('FILESYSTEM_CLOUD', 's3'),
@@ -38,7 +38,7 @@ return [
     | been setup for each driver as an example of the required options.
     |
     | Supported Drivers: "local", "ftp", "s3", "rackspace"
-    |
+    | 可以把每个磁盘看做文件夹类型，可以自定义多个文件夹用来存储相同类型的文件
     */
 
     'disks' => [

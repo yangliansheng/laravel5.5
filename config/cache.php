@@ -3,6 +3,7 @@
 return [
 
     /*
+     * https://www.jianshu.com/p/9970e6e8393b注释地址
     |--------------------------------------------------------------------------
     | Default Cache Store
     |--------------------------------------------------------------------------
@@ -12,10 +13,10 @@ return [
     | not explicitly specified when executing a given caching function.
     |
     | Supported: "apc", "array", "database", "file", "memcached", "redis"
-    |
+    | 缓存的默认存储方式
     */
 
-    'default' => env('CACHE_DRIVER', 'file'),
+    'default' => env('CACHE_DRIVER', 'file'),//线上默认使用文件缓存;线下使用redis缓存
 
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +26,6 @@ return [
     | Here you may define all of the cache "stores" for your application as
     | well as their drivers. You may even define multiple stores for the
     | same cache driver to group types of items stored in your caches.
-    |
     */
 
     'stores' => [
@@ -67,15 +67,16 @@ return [
                 ],
             ],
         ],
-
+        
         'redis' => [
             'driver' => 'redis',
-            'connection' => 'default',
+            'connection' => 'default',//使用redis配置的缓存配置
         ],
 
     ],
 
     /*
+     * 前缀
     |--------------------------------------------------------------------------
     | Cache Key Prefix
     |--------------------------------------------------------------------------

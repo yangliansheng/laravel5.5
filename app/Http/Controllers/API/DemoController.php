@@ -13,7 +13,14 @@ class DemoController extends Controller
 {
     public function index() {
         echo 'demo-action';
-        DB::insert('insert into users (id, name) values (?, ?)', [1, '学院君']);
+    }
+    
+    public function show() {
+        echo 'aaasdasaa';
+    }
+    
+    public function test1() {
+        echo '1111';
     }
 
 }

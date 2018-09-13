@@ -3,6 +3,8 @@
 return [
 
     /*
+    | 这个文件主要是用来搭建websockets，可以用它做即时聊天的功能，
+    | pusher 是 https://pusher.com/ 这个网站的对应配置，需要自己去注册。log 是用于本地开发和调试。
     |--------------------------------------------------------------------------
     | Default Broadcaster
     |--------------------------------------------------------------------------
@@ -25,7 +27,6 @@ return [
     | Here you may define all of the broadcast connections that will be used
     | to broadcast events to other systems or over websockets. Samples of
     | each available type of connection are provided inside this array.
-    |
     */
 
     'connections' => [

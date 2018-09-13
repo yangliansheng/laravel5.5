@@ -16,5 +16,5 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('demo/test1', 'API\DemoController@test1');
 
-Route::resource('demo', 'API\DemoController');//路由资源对应5.2的路由控制器

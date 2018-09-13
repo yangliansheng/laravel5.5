@@ -38,15 +38,30 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
         ],
-
+        //核心系统配置及日志库
         'mysql' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
+            'username' =>  env('DB_USERNAME', 'forge'),
+            'password' =>  env('DB_PASSWORD', ''),
+//            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+        //保世界核心系统资料库
+        'mysql_bsj' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST_BSJ', '127.0.0.1'),
+            'port' => env('DB_PORT_BSJ', '3306'),
+            'database' => env('DB_DATABASE_BSJ', 'forge'),
+            'username' =>  env('DB_USERNAME_BSJ', 'forge'),
+            'password' =>  env('DB_PASSWORD_BSJ', ''),
+//            'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -114,7 +129,24 @@ return [
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
         ],
+        /**
+         * redis 由于配置默认是和 session 存在同一个数据库里，
+         * 推荐把连接换一下，把 connection => 'default' 换成 connection => 'cache'。
+         * 然后在 config 的 database.php 的 redis 数组里增加以下内容:
+         */
+        'session' => [
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', 6379),
+            'database' => 1,
+        ],
 
+        'queue' => [
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', 6379),
+            'database' => 2,
+        ],
     ],
 
 ];
