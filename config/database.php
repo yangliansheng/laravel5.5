@@ -54,7 +54,7 @@ return [
             'engine' => null,
         ],
         //保世界核心系统资料库
-        'mysql_bsj' => [
+        'mysql_bzb' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST_BSJ', '127.0.0.1'),
             'port' => env('DB_PORT_BSJ', '3306'),

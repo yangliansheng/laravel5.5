@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/demo', function () {
-    echo  'test--laravel';
+Route::get('/{address}', function ($address) {
+    return redirect('/');
 });
 
