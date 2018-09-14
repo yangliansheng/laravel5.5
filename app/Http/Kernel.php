@@ -12,6 +12,7 @@ class Kernel extends HttpKernel
      * These middleware are run during every request to your application.
      *
      * @var array
+     * 全局中间件注册
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
@@ -25,6 +26,8 @@ class Kernel extends HttpKernel
      * The application's route middleware groups.
      *
      * @var array
+     * 中间件组注册'web'针对web.php,RouteServiceProvider已将中间件组web应用在你的web.php的路由
+     * 'api'针对api.php路由
      */
     protected $middlewareGroups = [
         'web' => [

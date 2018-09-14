@@ -9,7 +9,7 @@ class Handler extends ExceptionHandler
 {
     /**
      * A list of the exception types that are not reported.
-     *
+     * dontReport不报告错误
      * @var array
      */
     protected $dontReport = [
@@ -41,7 +41,7 @@ class Handler extends ExceptionHandler
 
     /**
      * Render an exception into an HTTP response.
-     *
+     * 呈现异常到响应中（可在这做错误类型屏蔽）
      * @param  \Illuminate\Http\Request  $request
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
