@@ -1,6 +1,6 @@
 {
     "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
+    "description": "保中宝核心业务系统",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "type": "project",
