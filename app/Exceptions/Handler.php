@@ -48,6 +48,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof ModelException) {
+            return response([[],-100,config('exception_code.-100')]);
+        }
+        if ($exception instanceof ModelAuthException) {
+            return response([[],-101,config('exception_code.-101')]);
+        }
         return parent::render($request, $exception);
     }
 }
