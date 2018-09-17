@@ -18,4 +18,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 //Route::get('demo/test1', 'API\DemoController@test1');
 Route::apiResource('demo', 'API\DemoController');
-
+Route::apiResource('test','TestController');
