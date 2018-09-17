@@ -38,7 +38,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
-
+        
+        $this->mapSystemRoutes();
         //
     }
 
@@ -69,5 +70,16 @@ class RouteServiceProvider extends ServiceProvider
              ->middleware('api')
              ->namespace($this->namespace)
              ->group(base_path('routes/api.php'));
+    }
+    
+    /**
+     * 给第三方提供服务接口路由地图
+     */
+    protected function mapSystemRoutes()
+    {
+        Route::prefix('binb')
+            ->middleware('system')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/system.php'));
     }
 }
