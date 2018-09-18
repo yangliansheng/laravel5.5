@@ -4,9 +4,6 @@
  */
 namespace App\Http\Controllers;
 
-use App\Model\AdminUser;
-use App\Model\LoginUser;
-use App\Model\Model_Auth;
 use App\Model\Test;
 use Illuminate\Http\Request;
 
@@ -23,10 +20,6 @@ class TestController extends Controller
 //        $lists = Test::where('active', 1)//查询
 //            ->orderBy('u_id', 'desc')//排序
 //            ->paginate(15);
-        app()->bind('ModelAuth', function(){
-            return new Model_Auth(new AdminUser(),new LoginUser());
-        });//注入绑定的数据中间验证层实例
-        config(['database.module_connection'=>'mysql']);
         $lists = Test::paginate(15);//分页
         $lists = Test::all();//获取所有
         return $lists;
