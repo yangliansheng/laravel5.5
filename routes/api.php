@@ -13,9 +13,10 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-//Route::get('demo/test1', 'API\DemoController@test1');
-Route::apiResource('demo', 'API\DemoController');
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
 Route::apiResource('test','TestController');
+
+Route::post('/login','Common\LoginController@login')->middleware('throttle:20,1');
+Route::post('/loginout', 'Common\LoginController@logout')->name('logout');

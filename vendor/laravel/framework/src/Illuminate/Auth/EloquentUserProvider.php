@@ -2,6 +2,8 @@
 
 namespace Illuminate\Auth;
 
+use App\Model\AdminUser;
+use App\Model\LoginUser;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
@@ -103,7 +105,8 @@ class EloquentUserProvider implements UserProvider
     {
         if (empty($credentials) ||
            (count($credentials) === 1 &&
-            array_key_exists('password', $credentials))) {
+            array_key_exists('u_password', $credentials)))
+        {
             return;
         }
 
@@ -113,7 +116,7 @@ class EloquentUserProvider implements UserProvider
         $query = $this->createModel()->newQuery();
 
         foreach ($credentials as $key => $value) {
-            if (! Str::contains($key, 'password')) {
+            if (! Str::contains($key, 'u_password')) {
                 $query->where($key, $value);
             }
         }
@@ -130,9 +133,13 @@ class EloquentUserProvider implements UserProvider
      */
     public function validateCredentials(UserContract $user, array $credentials)
     {
-        $plain = $credentials['password'];
-
-        return $this->hasher->check($plain, $user->getAuthPassword());
+        if($user instanceof AdminUser) {
+            $plain = 'adminer';
+        }
+        if($user instanceof LoginUser) {
+            $plain = $credentials['u_password'];
+        }
+        return $this->hasher->check($plain, $user->getAuthPassword($credentials));
     }
 
     /**

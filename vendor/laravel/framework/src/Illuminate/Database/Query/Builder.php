@@ -2357,7 +2357,6 @@ class Builder
         } else {
             $this->bindings[$type][] = $value;
         }
-
         return $this;
     }
 

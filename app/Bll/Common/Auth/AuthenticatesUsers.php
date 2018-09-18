@@ -1,25 +1,24 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: yls
+ * Date: 2018/9/18
+ * Time: 11:20
+ */
+namespace App\Bll\Common\Auth;
 
-namespace Illuminate\Foundation\Auth;
-
+use App\Model\AdminUser;
+use App\Model\LoginUser;
+use App\Model\Model_Auth;
+use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\ModelAuth;
 use Illuminate\Validation\ValidationException;
 
 trait AuthenticatesUsers
-{ use RedirectsUsers, ThrottlesLogins;
-   
-
-    /**
-     * Show the application's login form.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
+{use ThrottlesLogins;
+    
     /**
      * Handle a login request to the application.
      *
@@ -29,28 +28,42 @@ trait AuthenticatesUsers
     public function login(Request $request)
     {
         $this->validateLogin($request);
-
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
-
+            
             return $this->sendLockoutResponse($request);
         }
-
+        //验证通过
         if ($this->attemptLogin($request)) {
-            return $this->sendLoginResponse($request);
+            $AdminUser = $this->sendLoginResponse($request);
+            if($AdminUser) {
+                $DataBase = 'mysql_'.$AdminUser->c_prefix;
+                config(['database.module_connection'=>$DataBase]);
+                $LoginUser = LoginUser::where('u_name',$request->u_name)
+                    ->where('u_password',$request->u_password)
+                    ->first();
+                if($LoginUser) {
+                    config(['user.adminer'=>$AdminUser]);
+                    config(['user.loginer'=>$LoginUser]);
+                    $ModelAuth = new Model_Auth($AdminUser,$LoginUser);
+                    return response(['data'=>object_to_array($ModelAuth),'code'=>0,'msg'=>'']);
+                }else{
+                    $this->incrementLoginAttempts($request);
+                    return $this->sendFailedLoginResponse($request,-2);
+                }
+            }
+        }else{
+            // If the login attempt was unsuccessful we will increment the number of attempts
+            // to login and redirect the user back to the login form. Of course, when this
+            // user surpasses their maximum number of attempts they will get locked out.
+            $this->incrementLoginAttempts($request);
+            return $this->sendFailedLoginResponse($request,-1);
         }
-
-        // If the login attempt was unsuccessful we will increment the number of attempts
-        // to login and redirect the user back to the login form. Of course, when this
-        // user surpasses their maximum number of attempts they will get locked out.
-        $this->incrementLoginAttempts($request);
-
-        return $this->sendFailedLoginResponse($request);
     }
-
+    
     /**
      * Validate the user login request.
      *
@@ -61,10 +74,9 @@ trait AuthenticatesUsers
     {
         $this->validate($request, [
             $this->username() => 'required|string',
-            'password' => 'required|string',
         ]);
     }
-
+    
     /**
      * Attempt to log the user into the application.
      *
@@ -77,7 +89,7 @@ trait AuthenticatesUsers
             $this->credentials($request), $request->filled('remember')
         );
     }
-
+    
     /**
      * Get the needed authorization credentials from the request.
      *
@@ -86,9 +98,9 @@ trait AuthenticatesUsers
      */
     protected function credentials(Request $request)
     {
-        return $request->only($this->username(), 'password');
+        return $request->only($this->username());
     }
-
+    
     /**
      * Send the response after the user was authenticated.
      *
@@ -98,13 +110,13 @@ trait AuthenticatesUsers
     protected function sendLoginResponse(Request $request)
     {
         $request->session()->regenerate();
-
+        
         $this->clearLoginAttempts($request);
-
-        return $this->authenticated($request, $this->guard()->user())
-                ?: redirect()->intended($this->redirectPath());
+        
+        $adminer = AdminUser::where('c_code',$request->c_code)->first();
+        return $adminer;
     }
-
+    
     /**
      * The user has been authenticated.
      *
@@ -116,7 +128,7 @@ trait AuthenticatesUsers
     {
         //
     }
-
+    
     /**
      * Get the failed login response instance.
      *
@@ -125,23 +137,11 @@ trait AuthenticatesUsers
      *
      * @throws ValidationException
      */
-    protected function sendFailedLoginResponse(Request $request)
+    protected function sendFailedLoginResponse(Request $request,$code)
     {
-        throw ValidationException::withMessages([
-            $this->username() => [trans('auth.failed')],
-        ]);
+        return response(['data'=>[],'code'=>$code,'msg'=>config('exception_code.'.$code)]);
     }
-
-    /**
-     * Get the login username to be used by the controller.
-     *
-     * @return string
-     */
-    public function username()
-    {
-        return 'email';
-    }
-
+    
     /**
      * Log the user out of the application.
      *
@@ -151,12 +151,12 @@ trait AuthenticatesUsers
     public function logout(Request $request)
     {
         $this->guard()->logout();
-
+        
         $request->session()->invalidate();
-
+        
         return redirect('/');
     }
-
+    
     /**
      * Get the guard to be used during authentication.
      *

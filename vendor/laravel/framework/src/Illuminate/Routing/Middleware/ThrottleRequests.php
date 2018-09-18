@@ -49,6 +49,7 @@ class ThrottleRequests
         $maxAttempts = $this->resolveMaxAttempts($request, $maxAttempts);
 
         if ($this->limiter->tooManyAttempts($key, $maxAttempts, $decayMinutes)) {
+            return response(['data'=>[],'code'=>429,'msg'=>'Too Many Attempts.']);
             throw $this->buildException($key, $maxAttempts);
         }
 
@@ -116,7 +117,7 @@ class ThrottleRequests
             $this->calculateRemainingAttempts($key, $maxAttempts, $retryAfter),
             $retryAfter
         );
-
+       
         return new HttpException(
             429, 'Too Many Attempts.', null, $headers
         );

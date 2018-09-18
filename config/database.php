@@ -15,7 +15,7 @@ return [
 
     'default' => env('DB_CONNECTION', 'mysql'),
     
-    'module_connection' => '',
+    'module_connection' => 'mysql',
     /*
     |--------------------------------------------------------------------------
     | Database Connections
@@ -51,11 +51,11 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'strict' => true,
+            'strict' => false,//是否开启严格5.7的数据类型校验
             'engine' => null,
         ],
         //保世界核心系统资料库
-        'mysql_bzb' => [
+        'mysql_001' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST_BSJ', '127.0.0.1'),
             'port' => env('DB_PORT_BSJ', '3306'),
@@ -66,7 +66,7 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'strict' => true,
+            'strict' => false,
             'engine' => null,
         ],
 

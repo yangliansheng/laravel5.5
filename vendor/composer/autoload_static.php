@@ -17,6 +17,7 @@ class ComposerStaticInitb75a9a3f5ea30044722ff6e676ddd1ca
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
         'f0906e6318348a765ffb6eb24e0d0938' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
+        '961da82ab765f2fc115e665cc41207e8' => __DIR__ . '/../..' . '/app/Providers/ObjectToArrayServiceProvider.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -341,20 +342,28 @@ class ComposerStaticInitb75a9a3f5ea30044722ff6e676ddd1ca
     );
 
     public static $classMap = array (
+        'App\\Bll\\Common\\Auth\\AuthenticatesUsers' => __DIR__ . '/../..' . '/app/Bll/Common/Auth/AuthenticatesUsers.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
-        'App\\Http\\Controllers\\API\\DemoController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/DemoController.php',
+        'App\\Exceptions\\ModelAuthException' => __DIR__ . '/../..' . '/app/Exceptions/ModelAuthException.php',
+        'App\\Exceptions\\ModelException' => __DIR__ . '/../..' . '/app/Exceptions/ModelException.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
-        'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
         'App\\Http\\Controllers\\Auth\\ResetPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ResetPasswordController.php',
+        'App\\Http\\Controllers\\Common\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/LoginController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\TestController' => __DIR__ . '/../..' . '/app/Http/Controllers/TestController.php',
         'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
         'App\\Http\\Middleware\\EncryptCookies' => __DIR__ . '/../..' . '/app/Http/Middleware/EncryptCookies.php',
         'App\\Http\\Middleware\\RedirectIfAuthenticated' => __DIR__ . '/../..' . '/app/Http/Middleware/RedirectIfAuthenticated.php',
         'App\\Http\\Middleware\\TrimStrings' => __DIR__ . '/../..' . '/app/Http/Middleware/TrimStrings.php',
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
+        'App\\Model\\AdminUser' => __DIR__ . '/../..' . '/app/Model/AdminUser.php',
+        'App\\Model\\BaseModel' => __DIR__ . '/../..' . '/app/Model/BaseModel.php',
+        'App\\Model\\LoginUser' => __DIR__ . '/../..' . '/app/Model/LoginUser.php',
+        'App\\Model\\Model_Auth' => __DIR__ . '/../..' . '/app/Model/Model_Auth.php',
+        'App\\Model\\Test' => __DIR__ . '/../..' . '/app/Model/Test.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
@@ -1369,6 +1378,7 @@ class ComposerStaticInitb75a9a3f5ea30044722ff6e676ddd1ca
         'Illuminate\\Support\\Facades\\Log' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/Log.php',
         'Illuminate\\Support\\Facades\\Mail' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/Mail.php',
         'Illuminate\\Support\\Facades\\Notification' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/Notification.php',
+        'Illuminate\\Support\\Facades\\ObjectToArray' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/ObjectToArray.php',
         'Illuminate\\Support\\Facades\\Password' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/Password.php',
         'Illuminate\\Support\\Facades\\Queue' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/Queue.php',
         'Illuminate\\Support\\Facades\\Redirect' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/Facades/Redirect.php',
