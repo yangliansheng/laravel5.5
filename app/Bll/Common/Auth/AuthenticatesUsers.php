@@ -155,11 +155,11 @@ trait AuthenticatesUsers
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function logout(Request $request)
+    public function loginout(Request $request)
     {
         $this->auth->getToken()->get();
         $this->auth->invalidate();
-        $this->guard()->logout();
+//        $this->guard()->logout();
         
         $request->session()->invalidate();
         
@@ -184,11 +184,12 @@ trait AuthenticatesUsers
      * 刷新令牌，使当前无效
      * @return \Illuminate\Contracts\Routing\ResponseFactory|string|\Symfony\Component\HttpFoundation\Response
      */
-    public function refresh_token(Request $request)
+    protected function refresh_token(Request $request)
     {
         try {
-            $this->auth->getToken()->get();//验证是否能获取到token
-            $newToken = $this->auth->refresh();
+            $token = JWTAuth::parseToken()->authenticate();
+//            $this->auth->getToken()->get();//验证是否能获取到token
+            $newToken = JWTAuth::refresh();
             return response([
                 'result'=>[
                     'newtoken' => $newToken,
@@ -206,9 +207,10 @@ trait AuthenticatesUsers
      * 获取当前Token
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function get_token() {
+    protected function get_token() {
         try {
-            $token = $this->auth->getToken()->get();//验证是否能获取到token
+            $token = JWTAuth::parseToken()->authenticate();
+//            $token = $this->auth->getToken()->get();//验证是否能获取到token
             return response([
                 'result'=>[
                     'token' => $token
