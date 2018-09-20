@@ -47,7 +47,6 @@ class EloquentUserProvider implements UserProvider
     public function retrieveById($identifier)
     {
         $model = $this->createModel();
-
         return $model->newQuery()
             ->where($model->getAuthIdentifierName(), $identifier)
             ->first();
@@ -135,11 +134,13 @@ class EloquentUserProvider implements UserProvider
     {
         if($user instanceof AdminUser) {
             $plain = 'adminer';
+            $password = $user->getAuthPassword();
         }
         if($user instanceof LoginUser) {
             $plain = $credentials['u_password'];
+            $password = LoginUser::getTheAuthPassword($credentials);
         }
-        return $this->hasher->check($plain, $user->getAuthPassword($credentials));
+        return $this->hasher->check($plain, $password,[$user]);
     }
 
     /**

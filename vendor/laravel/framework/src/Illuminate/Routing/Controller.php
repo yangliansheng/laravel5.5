@@ -2,6 +2,7 @@
 
 namespace Illuminate\Routing;
 
+use App\Http\Controllers\ResponseHandler;
 use BadMethodCallException;
 
 abstract class Controller
@@ -12,7 +13,14 @@ abstract class Controller
      * @var array
      */
     protected $middleware = [];
-
+    
+    private $resp;
+    
+    public function __construct()
+    {
+        $this->resp = new ResponseHandler();
+    }
+    
     /**
      * Register middleware on the controller.
      *
@@ -28,7 +36,6 @@ abstract class Controller
                 'options' => &$options,
             ];
         }
-
         return new ControllerMiddlewareOptions($options);
     }
 
@@ -66,5 +73,10 @@ abstract class Controller
     public function __call($method, $parameters)
     {
         throw new BadMethodCallException("Method [{$method}] does not exist on [".get_class($this).'].');
+    }
+    
+    protected function response()
+    {
+        return $this->resp;
     }
 }

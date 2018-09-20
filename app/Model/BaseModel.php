@@ -39,7 +39,7 @@ class BaseModel extends Model
         }else{
             throw_unless(false, ModelException::class);
         }
-        $this->handle(app('ModelAuth'));
+//        $this->handle(app('ModelAuth'));
     }
     
     /**

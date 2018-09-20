@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 //Route::middleware('auth:api')->get('/user', function (Request $request) {
 //    return $request->user();
 //});
-Route::apiResource('test','TestController');
+Route::apiResource('test','TestController')->middleware('token');
 
 Route::post('/login','Common\LoginController@login')->middleware('throttle:20,1');
 Route::post('/loginout', 'Common\LoginController@logout')->name('logout');
@@ -40,3 +40,5 @@ Route::get('sysCompInfo/{ic_id}', 'API\CompanyController@sysCompInfo');
 Route::apiResource('product', 'API\ProductController');
 Route::get('prodList', 'API\ProductController@list');
 Route::get('prodRateList', 'API\ProductController@prodRateList');
+
+Route::apiResource('test1','Test1Controller');

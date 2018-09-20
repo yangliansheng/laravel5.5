@@ -3,12 +3,13 @@
 namespace App\Model;
 
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class AdminUser extends Authenticatable
+class AdminUser extends Authenticatable implements JWTSubject
 {
     protected $table = 'bao_company'; // 默认 flights
-    protected $primaryKey = 'u_id'; // 默认 id
+    protected $primaryKey = 'c_id'; // 默认 id
     protected $guard = 'admin';
     
     use Notifiable;
@@ -37,5 +38,29 @@ class AdminUser extends Authenticatable
      */
     public function getAuthPassword() {
         return 'adminer';
+    }
+    
+    public function getAuthIdentifierName() {
+        return 'c_id';
+    }
+    
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+    
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

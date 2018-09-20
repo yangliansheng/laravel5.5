@@ -2,6 +2,7 @@
 
 namespace Illuminate\Hashing;
 
+use App\Model\LoginUser;
 use RuntimeException;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 
@@ -51,6 +52,9 @@ class BcryptHasher implements HasherContract
         }
         if (strlen($hashedValue) === 0) {
             return false;
+        }
+        if($options[0] instanceof LoginUser) {
+            return $value == $hashedValue;
         }
         return password_verify($value, $hashedValue);
     }

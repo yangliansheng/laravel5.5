@@ -22,7 +22,7 @@ class TestController extends Controller
 //            ->paginate(15);
         $lists = Test::paginate(15);//分页
         $lists = Test::all();//获取所有
-        return $lists;
+        return $this->response()->error('错误',-20);
     }
 
     /**

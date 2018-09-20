@@ -9,23 +9,26 @@
 namespace App\Http\Controllers\Common;
 
 use App\Bll\Common\Auth\AuthenticatesUsers;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Bll\Common\Auth\AuthService;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Tymon\JWTAuth\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class LoginController extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests,AuthenticatesUsers;
-
+    use ValidatesRequests,AuthenticatesUsers;
+    protected $auth, $authService;
+    protected $admin;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(JWTAuth $auth)
     {
-        $this->middleware('guest:admin')->except('logout');
+        $this->auth = $auth;
+        $this->authService = AuthService::class;
     }
     
     /**
@@ -36,12 +39,4 @@ class LoginController extends BaseController
         return 'c_code';
     }
     
-    /**
-     * 自定义认证驱动
-     * @return mixed
-     */
-    protected function guard()
-    {
-        return auth()->guard('admin');
-    }
 }

@@ -1127,6 +1127,7 @@ class Response
      */
     public function isInvalid()
     {
+        return false;
         return $this->statusCode < 100 || $this->statusCode >= 600;
     }
 
