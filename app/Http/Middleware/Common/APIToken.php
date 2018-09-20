@@ -26,7 +26,7 @@ class APIToken
         //     return error(403);
         // }
         try {
-//            $this->check_token($request->all());
+            $this->check_token($request->all());
             $token = JWTAuth::parseToken()->authenticate();
 //            $token = JWTAuth::parseToken()->getToken();
             $AdminUser = JWTAuth::toUser($token);
@@ -37,9 +37,8 @@ class APIToken
             config(['user.loginer'=>$LoginUser]);
         } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
             return response([
-                'data'=>[],
-                'code'=>402,
-                'msg'=>$e->getMessage()
+                'status_code'=>402,
+                'message'=>$e->getMessage()
             ]);
         } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
             try {
@@ -47,24 +46,22 @@ class APIToken
                 $newToken = JWTAuth::refresh();
             } catch (\Exception $e) {
                 return response([
-                    'data'=>[],
-                    'code'=>402,
-                    'msg'=>$e->getMessage()
+                    'status_code'=>402,
+                    'message'=>$e->getMessage()
                 ]);
             }
             #刷新token并且返回新token
             return response([
-                'data'=>[
+                'result'=>[
                     'newToken' => $newToken
                 ],
-                'code'=>-406,
-                'msg'=>config('exception_code.-406')
+                'status_code'=>-406,
+                'message'=>config('exception_code.-406')
             ]);
         } catch (JWTException $e) {
             return response([
-                'data'=>[],
-                'code'=>402,
-                'msg'=>$e->getMessage()
+                'status_code'=>402,
+                'message'=>$e->getMessage()
             ]);
         }
        
@@ -74,7 +71,10 @@ class APIToken
     protected function check_token($arr) {
         /*********** api传过来的token  ***********/
         if (!isset($arr['token']) || empty($arr['token'])) {
-            return $this->response(1,'Token can`t be empty');
+            return response([
+                'status_code'=>-101,
+                'message'=>config('exception_code.-101')
+            ]);
         }
         $app_token = $arr['token']; // api传过来的token
         /*********** 服务器端生成token  ***********/

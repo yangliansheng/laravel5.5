@@ -29,7 +29,7 @@ class AuthService
                 'u_password' => md5($password)
             ])->first();
         } catch (\Exception $e) {
-            return response($e->getMessage());
+            return response(['status_code'=>-100,'message'=>$e->getMessage()]);
         }
     }
 }

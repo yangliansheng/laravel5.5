@@ -56,7 +56,7 @@ trait AuthenticatesUsers
                     $this->guard('api');
                     $token = $this->auth->fromUser($LoginUser);
 //                    $token = JWTAuth::fromSubject($LoginUser);
-                    return response(['data'=>['token' => $token, 'expires_in' => $this->auth->factory()->getTTL() * 60, 'userinfo' => $LoginUser->toArray()],'code'=>0,'msg'=>'']);
+                    return response(['result'=>['token' => $token, 'expires_in' => $this->auth->factory()->getTTL() * 60, 'userinfo' => $LoginUser->toArray()],'status_code'=>0,'message'=>'']);
                 }else{
                     $this->incrementLoginAttempts($request);
                     return $this->sendFailedLoginResponse($request,-2);
@@ -146,7 +146,7 @@ trait AuthenticatesUsers
      */
     protected function sendFailedLoginResponse(Request $request,$code)
     {
-        return response(['data'=>[],'code'=>$code,'msg'=>config('exception_code.'.$code)]);
+        return response(['status_code'=>$code,'message'=>config('exception_code.'.$code)]);
     }
     
     /**
@@ -190,12 +190,12 @@ trait AuthenticatesUsers
             $this->auth->getToken()->get();//验证是否能获取到token
             $newToken = $this->auth->refresh();
             return response([
-                'data'=>[
+                'result'=>[
                     'newtoken' => $newToken,
                     'expires_in' => $this->auth->factory()->getTTL() * 60
                 ],
-                'code'=>0,
-                'msg'=>''
+                'status_code'=>0,
+                'message'=>'refresh_token Success'
             ]);
         }catch (\Exception $e) {
             return $e->getMessage();
@@ -210,21 +210,21 @@ trait AuthenticatesUsers
         try {
             $token = $this->auth->getToken()->get();//验证是否能获取到token
             return response([
-                'data'=>[
+                'result'=>[
                     'token' => $token
                 ],
-                'code'=>0,
-                'msg'=>''
+                'status_code'=>0,
+                'message'=>'get_token Success'
             ]);
         }catch (\Exception $e) {
             try{
                 $token = $this->auth->refresh();
                 return response([
-                    'data'=>[
+                    'result'=>[
                         'token' => $token
                     ],
-                    'code'=>0,
-                    'msg'=>''
+                    'status_code'=>0,
+                    'message'=>'get_token Success'
                 ]);
             }catch (\Exception $exception) {
                 return $exception->getMessage();
