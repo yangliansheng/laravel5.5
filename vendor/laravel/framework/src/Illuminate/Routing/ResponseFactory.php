@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Contracts\Routing\ResponseFactory as FactoryContract;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ResponseFactory implements FactoryContract
 {
@@ -211,5 +212,17 @@ class ResponseFactory implements FactoryContract
     public function redirectToIntended($default = '/', $status = 302, $headers = [], $secure = null)
     {
         return $this->redirector->intended($default, $status, $headers, $secure);
+    }
+    
+    /**
+     * @param $message
+     * @param $statusCode
+     * Return an error response.
+     * @return JsonResponse
+     */
+    
+    public function error($message, $statusCode)
+    {
+        throw new HttpException($statusCode, $message);
     }
 }

@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\ModelAuth;
 use Illuminate\Validation\ValidationException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 trait AuthenticatesUsers
 {use ThrottlesLogins;
@@ -42,14 +43,20 @@ trait AuthenticatesUsers
             if($AdminUser) {
                 $DataBase = 'mysql_'.$AdminUser->c_prefix;
                 config(['database.module_connection'=>$DataBase]);
-                $LoginUser = LoginUser::where('u_name',$request->u_name)
-                    ->where('u_password',$request->u_password)
-                    ->first();
+                if (Auth::guard('api')->attempt(['u_name'=>$request->u_name,'u_password'=>$request->u_password])) {
+                    $LoginUser = LoginUser::where('u_name',$request->u_name)
+                        ->where('u_password',$request->u_password)
+                        ->first();
+                }
                 if($LoginUser) {
-                    config(['user.adminer'=>$AdminUser]);
-                    config(['user.loginer'=>$LoginUser]);
-                    $ModelAuth = new Model_Auth($AdminUser,$LoginUser);
-                    return response(['data'=>object_to_array($ModelAuth),'code'=>0,'msg'=>'']);
+                    new Model_Auth($AdminUser,$LoginUser);
+                    app()->singleton('ModelAuth', function($ModelAuth){
+                        return $ModelAuth;
+                    });//注入绑定的数据中间验证层实例
+                    $this->guard('api');
+                    $token = $this->auth->fromUser($LoginUser);
+//                    $token = JWTAuth::fromSubject($LoginUser);
+                    return response(['data'=>['token' => $token, 'expires_in' => $this->auth->factory()->getTTL() * 60, 'userinfo' => $LoginUser->toArray()],'code'=>0,'msg'=>'']);
                 }else{
                     $this->incrementLoginAttempts($request);
                     return $this->sendFailedLoginResponse($request,-2);
@@ -150,6 +157,8 @@ trait AuthenticatesUsers
      */
     public function logout(Request $request)
     {
+        $this->auth->getToken()->get();
+        $this->auth->invalidate();
         $this->guard()->logout();
         
         $request->session()->invalidate();
@@ -162,8 +171,66 @@ trait AuthenticatesUsers
      *
      * @return \Illuminate\Contracts\Auth\StatefulGuard
      */
-    protected function guard()
+    protected function guard($guard = '')
     {
+        if($guard) {
+            Auth::guard($guard);
+        }
         return Auth::guard();
+    }
+    
+    /**
+     * @param Request $request
+     * 刷新令牌，使当前无效
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|string|\Symfony\Component\HttpFoundation\Response
+     */
+    public function refresh_token(Request $request)
+    {
+        try {
+            $this->auth->getToken()->get();//验证是否能获取到token
+            $newToken = $this->auth->refresh();
+            return response([
+                'data'=>[
+                    'newtoken' => $newToken,
+                    'expires_in' => $this->auth->factory()->getTTL() * 60
+                ],
+                'code'=>0,
+                'msg'=>''
+            ]);
+        }catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+    
+    /**
+     * 获取当前Token
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function get_token() {
+        try {
+            $token = $this->auth->getToken()->get();//验证是否能获取到token
+            return response([
+                'data'=>[
+                    'token' => $token
+                ],
+                'code'=>0,
+                'msg'=>''
+            ]);
+        }catch (\Exception $e) {
+            try{
+                $token = $this->auth->refresh();
+                return response([
+                    'data'=>[
+                        'token' => $token
+                    ],
+                    'code'=>0,
+                    'msg'=>''
+                ]);
+            }catch (\Exception $exception) {
+                return $exception->getMessage();
+            }
+        }
+      
+       
     }
 }
