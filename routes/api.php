@@ -40,5 +40,8 @@ Route::get('sysCompInfo/{ic_id}', 'API\CompanyController@sysCompInfo');
 Route::apiResource('product', 'API\ProductController');
 Route::get('prodList', 'API\ProductController@list');
 Route::get('prodRateList', 'API\ProductController@prodRateList');
+Route::get('prodRateInfo/{r_id}', 'API\ProductController@prodRateInfo');
+Route::get('prodRateEdit/{p_id}', 'API\ProductController@prodRateEdit');
+Route::post('prodRateSave', 'API\ProductController@prodRateSave');
 
 Route::apiResource('test1','Test1Controller');

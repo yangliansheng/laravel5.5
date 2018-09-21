@@ -11,6 +11,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Model\Product as MdlProduct;
+use App\Model\ProductRate as MdlProdRate;
 
 class ProductController extends Controller{
     
@@ -74,7 +75,7 @@ class ProductController extends Controller{
         $return['data'] = $data;
         $return['paramsData'] = $appendData;
 
-        return $this->response($return,0, '保险产品列表');
+        return $this->response()->success($return);
     }
     
     /**
@@ -84,7 +85,7 @@ class ProductController extends Controller{
      */
     public function index(){
         $data = MdlProduct::all();
-        return $this->response($data,0, '全部保险产品列表');
+        return $this->response()->success($data);
     }
     
     public function create(){
@@ -107,7 +108,7 @@ class ProductController extends Controller{
                 'p_pay_time' => 'required|numeric',
             ]);
         }catch (\Exception $exception){
-            return $this->response([],1, '参数错误');
+            return $this->response()->error('参数错误',-200);
         }
     
         $product = new MdlProduct();
@@ -136,9 +137,9 @@ class ProductController extends Controller{
         
         try{
             $rs = $product->save();
-            return $this->response($rs,0,'添加成功');
+            return $this->response()->success('添加成功');
         }catch (\Exception $exception){
-            return $this->response([],1, $exception->getMessage());
+            return $this->response()->responseException($exception);
         }
     }
     
@@ -151,7 +152,7 @@ class ProductController extends Controller{
     public function show($id){
         $p = new MdlProduct();
         $res = $p->findOne(intval($id));
-        return $this->response($res,0,'保险产品详情');
+        return $this->response()->success($res);
     }
     
     public function edit($id){
@@ -177,7 +178,7 @@ class ProductController extends Controller{
                 'p_pay_time' => 'required|numeric',
             ]);
         }catch (\Exception $exception){
-            return $this->response([],1, '参数错误');
+            return $this->response()->error('参数错误', -200);
         }
         
         $data['c_id'] = intval($request->c_id);
@@ -208,10 +209,10 @@ class ProductController extends Controller{
         }
         
         if($data['p_bao_type'] && $data['p_bao_time'] <= 0)
-            return $this->response([],1, '请输入保险期间');
+            return $this->response()->error('请输入保险期间', -200);
     
         if($data['p_pay_type'] <= 0 || $data['p_pay_time'] <= 0)
-            return $this->response([],1, '请输入缴费期间');
+            return $this->response()->error('请输入缴费期间', -200);
     
         if($request->__isset('p_duty')){
             $data['p_duty'] = $request->p_duty;
@@ -242,9 +243,9 @@ class ProductController extends Controller{
         try{
             $product = new MdlProduct();
             $rs = $product->where("p_id", $id)->update($data);
-            return $this->response($rs,0,'修改成功');
+            return $this->response()->success('修改成功');
         }catch (\Exception $exception){
-            return $this->response([],1, $exception->getMessage());
+            return $this->response()->responseException($exception);
         }
     }
     
@@ -259,9 +260,9 @@ class ProductController extends Controller{
         //删除
         try{
             MdlProduct::destroy($id);
-            return $this->response([],0,'删除成功');
+            return $this->response()->success('删除成功');
         }catch(\Exception $exception) {
-            return $this->response([],1,$exception->getMessage());
+            return $this->response()->responseException($exception);
         }
     }
     
@@ -286,7 +287,7 @@ class ProductController extends Controller{
         $perPage = $request->perPage ? $request->perPage : 10;
         $page = $request->page ? $request->page : 1;
     
-        $data = MdlProduct::select(['*'])
+        $data = MdlProduct::select(['p_id', 'c_id', 'p_code', 'p_name', 'p_short_name', 'add_time', 'update_time'])
             ->where(function ($query) use ($search) {
                 if (isset($search['c_id']) && !empty($search['c_id'])) {
                     $query->where('c_id', '=', $search['c_id']);
@@ -304,24 +305,129 @@ class ProductController extends Controller{
             })
             ->orderBy('p_id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
-
-        if(!empty($data['data'])){
-            $p_ids = array_column($data['data'], 'p_id');
-            $
+    
+        if(!empty($data->items())){
+            $p_ids = array_column($data->items(), 'p_id');
+            $rate = \DB::table('c_p_rate')->whereIn('p_id', $p_ids)->get();
+            
+            if(!empty($rate)){
+                foreach ($rate as $item) {
+                    $d[$item->p_id] = $item->r_id;
+                }
+            }
+    
+            foreach ($data->items() as $key => $value) {
+                $data->items()[$key]['r_id'] = isset($d[$value['p_id']]) ? $d[$value['p_id']] : 0;
+            }
         }
     
         //追加额外参数，例如搜索条件
         $appendData = array(
             'search_cid' => empty($search['c_id']) ? '' : $search['c_id'],
             'search_name' => empty($search['p_name']) ? '' : $search['p_name'],
-            'search_property' => !isset($search['p_property']) ? '' : $search['p_property'],
-            'search_status' => isset($search['p_status']) ? $search['p_status'] : '',
+            'search_property' => !isset($search['p_code']) ? '' : $search['p_code'],
             'perPage' => $perPage,
+            'page' => $page
         );
-    
+
         $return['data'] = $data;
         $return['paramsData'] = $appendData;
     
-        return $this->response($return,0, '保险产品列表');
+        return $this->response()->success($return);
+    }
+    
+    /**
+     * 产品佣金费率详情
+     *
+     * @param $id
+     * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
+     */
+    public function prodRateInfo($id){
+//        $pr = new MdlProdRate();
+//        $res = $pr->findOne(intval($id));
+        try {
+            $rs = MdlProdRate::findOrFail($id);
+            
+            if(!empty($rs['r_data'])){
+                $rs['r_data'] = json_decode($rs['r_data'], true);
+            }
+            
+            return $this->response()->success($rs);
+        } catch (\Exception $exception) {
+            return $this->response()->responseException($exception);
+        }
+    }
+    
+    /**
+     * 编辑保险产品佣金费率
+     *
+     * @param $id
+     * @return \App\Http\Controllers\引发一个http请求的错误异常|\App\Http\Controllers\返回一个response的对像
+     */
+    public function prodRateEdit($id){
+        if(intval($id) <= 0)
+            return $this->response()->error('参数错误', -200);
+    
+        $data = MdlProduct::where('p_id', '=', $id)->first(['p_id', 'c_id', 'p_code', 'p_name', 'p_short_name', 'add_time', 'update_time']);
+        if(empty($data))
+            return $this->response()->error('数据不存在', -200);
+
+        $mdlRate = new MdlProdRate();
+        $rate = $mdlRate->where('p_id', '=', $id)->first(['r_id', 'r_data']);
+        $data['r_id'] = empty($rate['r_id']) ? 0 : $rate['r_id'];
+        $data['r_data'] = [];
+
+        if (!empty($rate['r_data'])) {
+            $r_data = json_decode($rate['r_data'], true);
+            $data['r_data'] = $r_data;
+        }
+        
+        return $this->response()->success($data);
+//        return view('rate.add', ['data' => $data]);//跳到产品佣金费率编辑页面
+    }
+    
+    /**
+     * 保存保险产品佣金费率
+     *
+     * @param Request $request
+     * @return \App\Http\Controllers\引发一个http请求的错误异常|\App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
+     */
+    public function prodRateSave(Request $request){
+        if(!$request->__isset('p_id') || (int)$request->p_id <= 0)
+            return $this->response()->error('参数错误', -200);
+        else
+            $p_id = (int)$request->p_id;
+    
+        $p_row = MdlProduct::where('p_id', '=', $p_id)->first();
+        if(empty($p_row)){
+            return $this->response()->error('数据不存在', -200);
+        }
+        
+        $r_row = MdlProdRate::where('p_id', '=', $p_id)->first();
+        if($r_row){
+            $data['r_data'] = empty($request->r_data) ? '' : $request->r_data;
+            $data['update_time'] = date('Y-m-d H:i:s');
+            
+            try {
+                MdlProdRate::where('p_id', '=', $p_id)->update($data);
+                return $this->response()->success('编辑成功');
+            }catch (\Exception $exception){
+                return $this->response()->responseException($exception);
+            }
+        }else{
+            $mdlRate = new MdlProdRate();
+            $mdlRate->p_id = (int)$request->p_id;
+            $mdlRate->r_data = empty($request->r_data) ? '' : $request->r_data;
+            $mdlRate->add_time = date('Y-m-d H:i:s');
+            $mdlRate->update_time = date('Y-m-d H:i:s');
+            
+            try {
+                $mdlRate->save();
+                return $this->response()->success('添加成功');
+            }catch (\Exception $exception){
+                return $this->response()->responseException($exception);
+            }
+        }
+        
     }
 }

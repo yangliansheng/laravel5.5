@@ -23,7 +23,7 @@ class CompanyController extends Controller{
      */
     public function index(){
         $data = Company::all();
-        return $this->response($data,0, '全部保险公司列表');
+        return $this->response()->success($data);
     }
     
     /**
@@ -86,7 +86,7 @@ class CompanyController extends Controller{
         $return['data'] = $data;
         $return['paramsData'] = $appendData;
 
-        return $this->response($return,0, '保险公司列表');
+        return $this->response()->success($return);
     }
 
     /**
@@ -112,7 +112,7 @@ class CompanyController extends Controller{
                 'c_code' => 'required|unique:c_insurance_company,c_code',
             ]);
         }catch (\Exception $exception){
-            return $this->response([],1, '参数错误');
+            return $this->response()->error('参数错误', -200);
         }
 
         $company = new Company();
@@ -122,7 +122,7 @@ class CompanyController extends Controller{
 
         if($request->__isset('c_tel')){
             if(!empty($request->c_tel) && !preg_match('/^1[3|4|5|7|8]\d{9}$/', $request->c_tel)){
-                return $this->response([],1, '手机号码格式错误');
+                return $this->response()->error('手机号码格式错误', -200);
             }
 
             $company->c_tel = $request->c_tel;
@@ -133,9 +133,9 @@ class CompanyController extends Controller{
 
         try{
             $rs = $company->save();
-            return $this->response($rs,0,'保存成功');
+            return $this->response()->success('保存成功');
         }catch (\Exception $exception){
-            return $this->response([],1, $exception->getMessage());
+            return $this->response()->responseException($exception);
         }
     }
     
@@ -148,7 +148,7 @@ class CompanyController extends Controller{
     public function show($id){
         $c = new Company();
         $res = $c->findOne(intval($id));
-        return $this->response($res,0,'保险公司详情');
+        return $this->response()->success($res);
     }
 
     /**
@@ -176,7 +176,7 @@ class CompanyController extends Controller{
                 'c_code' => 'required|unique:c_insurance_company,c_code,'.$id.',c_id',
             ]);
         }catch (\Exception $exception){
-            return $this->response([],1, '参数错误');
+            return $this->response()->error('参数错误', -200);
         }
 
         $company = new Company();
@@ -195,7 +195,7 @@ class CompanyController extends Controller{
 
         if($request->__isset('c_tel')){
             if(!empty($request->c_tel) && !preg_match('/^1[3|4|5|7|8]\d{9}$/', $request->c_tel)){
-                return $this->response([],1, '手机号码格式错误');
+                return $this->response()->error('手机号码格式错误', -200);
             }
 
             $data['c_tel'] = $request->c_tel;
@@ -217,9 +217,9 @@ class CompanyController extends Controller{
 
         try{
             $rs = $company->where("c_id", $id)->update($data);
-            return $this->response($rs,0,'修改成功');
+            return $this->response()->success('修改成功');
         }catch (\Exception $exception){
-            return $this->response([],1, $exception->getMessage());
+            return $this->response()->responseException($exception);
         }
     }
     
@@ -234,9 +234,9 @@ class CompanyController extends Controller{
         //删除
         try{
             Company::destroy($id);
-            return $this->response([],0,'删除成功');
+            return $this->response()->success('删除成功');
         }catch(\Exception $exception) {
-            return $this->response([],1,$exception->getMessage());
+            return $this->response()->responseException($exception);
         }
     }
 
@@ -252,9 +252,9 @@ class CompanyController extends Controller{
                 'c_code' => 'required|unique:c_insurance_company,c_code',
             ]);
 
-            return $this->response([],0, '可使用');
+            return $this->response()->success('可使用');
         }catch (\Exception $exception){
-            return $this->response([],1, '保险公司已存在');
+            return $this->response()->error('保险公司已存在', -200);
         }
     }
 
@@ -265,7 +265,7 @@ class CompanyController extends Controller{
      */
     public function sysCompList(){
         $list = config('insurance_company');
-        return $this->response($list,0, '系统保险公司列表');
+        return $this->response()->success($list);
     }
 
     /**
@@ -276,6 +276,6 @@ class CompanyController extends Controller{
      */
     public function sysCompInfo($ic_id){
         $info = config('insurance_company.'.(intval($ic_id)-1));
-        return $this->response($info,0, '系统保险公司详情');
+        return $this->response()->success($info);
     }
 }
