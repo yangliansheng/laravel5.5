@@ -16,6 +16,10 @@ abstract class Controller
     
     private $resp;
     
+    /**
+     * 绑定Http响应对象
+     * Controller constructor.
+     */
     public function __construct()
     {
         $this->resp = new ResponseHandler();
@@ -75,8 +79,19 @@ abstract class Controller
         throw new BadMethodCallException("Method [{$method}] does not exist on [".get_class($this).'].');
     }
     
+    /**
+     * 获取绑定的Http响应对象
+     * @return ResponseHandler
+     */
     protected function response()
     {
         return $this->resp;
+    }
+    
+    /**
+     * 绑定登录用户实例--中间件执行在构造之后
+     */
+    protected function bindingUser() {
+        $this->LoginUser =  config('user.loginer');
     }
 }

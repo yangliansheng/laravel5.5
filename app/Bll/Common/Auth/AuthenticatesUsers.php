@@ -56,7 +56,7 @@ trait AuthenticatesUsers
                     $this->guard('api');
                     $token = $this->auth->fromUser($LoginUser);
 //                    $token = JWTAuth::fromSubject($LoginUser);
-                    return response(['data'=>['token' => $token, 'expires_in' => $this->auth->factory()->getTTL() * 60, 'userinfo' => $LoginUser->toArray()],'code'=>0,'msg'=>'']);
+                    return response(['result'=>['token' => $token, 'expires_in' => $this->auth->factory()->getTTL() * 60, 'userinfo' => $LoginUser->toArray()],'status_code'=>0,'message'=>'']);
                 }else{
                     $this->incrementLoginAttempts($request);
                     return $this->sendFailedLoginResponse($request,-2);
@@ -146,7 +146,7 @@ trait AuthenticatesUsers
      */
     protected function sendFailedLoginResponse(Request $request,$code)
     {
-        return response(['data'=>[],'code'=>$code,'msg'=>config('exception_code.'.$code)]);
+        return response(['status_code'=>$code,'message'=>config('exception_code.'.$code)]);
     }
     
     /**
@@ -155,11 +155,11 @@ trait AuthenticatesUsers
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function logout(Request $request)
+    public function loginout(Request $request)
     {
         $this->auth->getToken()->get();
         $this->auth->invalidate();
-        $this->guard()->logout();
+//        $this->guard()->logout();
         
         $request->session()->invalidate();
         
@@ -184,18 +184,19 @@ trait AuthenticatesUsers
      * 刷新令牌，使当前无效
      * @return \Illuminate\Contracts\Routing\ResponseFactory|string|\Symfony\Component\HttpFoundation\Response
      */
-    public function refresh_token(Request $request)
+    protected function refresh_token(Request $request)
     {
         try {
-            $this->auth->getToken()->get();//验证是否能获取到token
-            $newToken = $this->auth->refresh();
+            $token = JWTAuth::parseToken()->authenticate();
+//            $this->auth->getToken()->get();//验证是否能获取到token
+            $newToken = JWTAuth::refresh();
             return response([
-                'data'=>[
+                'result'=>[
                     'newtoken' => $newToken,
                     'expires_in' => $this->auth->factory()->getTTL() * 60
                 ],
-                'code'=>0,
-                'msg'=>''
+                'status_code'=>0,
+                'message'=>'refresh_token Success'
             ]);
         }catch (\Exception $e) {
             return $e->getMessage();
@@ -206,25 +207,26 @@ trait AuthenticatesUsers
      * 获取当前Token
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function get_token() {
+    protected function get_token() {
         try {
-            $token = $this->auth->getToken()->get();//验证是否能获取到token
+            $token = JWTAuth::parseToken()->authenticate();
+//            $token = $this->auth->getToken()->get();//验证是否能获取到token
             return response([
-                'data'=>[
+                'result'=>[
                     'token' => $token
                 ],
-                'code'=>0,
-                'msg'=>''
+                'status_code'=>0,
+                'message'=>'get_token Success'
             ]);
         }catch (\Exception $e) {
             try{
                 $token = $this->auth->refresh();
                 return response([
-                    'data'=>[
+                    'result'=>[
                         'token' => $token
                     ],
-                    'code'=>0,
-                    'msg'=>''
+                    'status_code'=>0,
+                    'message'=>'get_token Success'
                 ]);
             }catch (\Exception $exception) {
                 return $exception->getMessage();
