@@ -52,3 +52,6 @@ Route::post('prodRateSave', 'API\ProductController@prodRateSave');
 //系统管理用户管理
 Route::apiResource('account', 'Common\AccountController');
 Route::post('account/update', 'Common\AccountController@updatePassword')->middleware('token');
+
+//企业投保单/保单相关路由
+Route::apiResource('policy', 'API\PolicyController');

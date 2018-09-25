@@ -10,26 +10,17 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Model\Company;
+use App\Model\Company as MdlCompany;
 use App\Bll\API\Company as BllCompany;
 
 
 class CompanyController extends Controller{
     
     /**
-     * 获取全部保险公司列表
-     *
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
-     */
-    public function index(){
-        $data = Company::all();
-        return $this->response()->success($data);
-    }
-    
-    /**
      * 保险公司列表 带搜索条件和分页
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function list(Request $request){
         $search = [];
@@ -49,31 +40,7 @@ class CompanyController extends Controller{
         $perPage = $request->perPage ? $request->perPage : 2;
         $page = $request->page ? $request->page : 1;
         $data = BllCompany::getList($search, $perPage, $page);
-
-//        $data = Company::select(['c_id', 'c_name', 'c_short_name', 'c_code', 'c_tel', 'c_status', 'c_start', 'c_end', 'add_time', 'update_time'])
-//            ->where(function ($query) use ($search) {
-//                if (isset($search['c_name']) && !empty($search['c_name'])) {
-//                    $query->where('c_name', 'like', '%' . $search['c_name'] . '%');
-//                }
-//            })
-//            ->where(function ($query) use ($search) {
-//                if (isset($search['c_short_name']) && !empty($search['c_short_name'])) {
-//                    $query->where('c_short_name', 'like', '%' . $search['c_short_name'] . '%');
-//                }
-//            })
-//            ->where(function ($query) use ($search) {
-//                if (isset($search['c_code']) && !empty($search['c_code'])) {
-//                    $query->where('c_code', 'like', '%' . $search['c_code'] . '%');
-//                }
-//            })
-//            ->where(function ($query) use ($search) {
-//                if (isset($search['c_status'])) {
-//                    $query->where('c_status', '=', $search['c_status']);
-//                }
-//            })
-//            ->orderBy('c_id', 'desc')
-//            ->paginate($perPage);
-
+        
         //追加额外参数，例如搜索条件
         $appendData = array(
             'search_name' => empty($search['c_name']) ? '' : $search['c_name'],
@@ -81,12 +48,23 @@ class CompanyController extends Controller{
             'search_code' => empty($search['c_code']) ? '' : $search['c_code'],
             'search_status' => isset($search['c_status']) ? $search['c_status'] : '',
             'perPage' => $perPage,
+            'page' => $page,
         );
 
         $return['data'] = $data;
         $return['paramsData'] = $appendData;
 
         return $this->response()->success($return);
+    }
+    
+    /**
+     * 获取全部保险公司列表
+     *
+     * @return \App\Http\Controllers\返回一个response的对像
+     */
+    public function index(){
+        $data = MdlCompany::all();
+        return $this->response()->success($data);
     }
 
     /**
@@ -97,12 +75,12 @@ class CompanyController extends Controller{
     public function create(){
         return view('company/edit');
     }
-
+    
     /**
      * 保存保险公司信息
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\引发一个http请求的错误异常|\App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function store(Request $request){
         try{
@@ -115,7 +93,7 @@ class CompanyController extends Controller{
             return $this->response()->error('参数错误', -200);
         }
 
-        $company = new Company();
+        $company = new MdlCompany();
         $company->c_name = $request->c_name;
         $company->c_short_name = $request->c_short_name;
         $company->c_code = $request->c_code;
@@ -143,10 +121,10 @@ class CompanyController extends Controller{
      * 显示指定保险公司详情信息
      *
      * @param $id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function show($id){
-        $c = new Company();
+        $c = new MdlCompany();
         $res = $c->findOne(intval($id));
         return $this->response()->success($res);
     }
@@ -158,15 +136,15 @@ class CompanyController extends Controller{
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function edit($id){
-        return view('company/edit', Company::find($id));
+        return view('company/edit', MdlCompany::find($id));
     }
-
+    
     /**
      * 修改保险公司信息
      *
      * @param Request $request
      * @param $id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function update(Request $request, $id){
         try{
@@ -179,7 +157,7 @@ class CompanyController extends Controller{
             return $this->response()->error('参数错误', -200);
         }
 
-        $company = new Company();
+        $company = new MdlCompany();
 
         if($request->__isset('c_name')){
             $data['c_name'] = $request->c_name;
@@ -226,53 +204,60 @@ class CompanyController extends Controller{
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Model\Test  $test
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function destroy($id)
     {
         //删除
         try{
-            Company::destroy($id);
+            MdlCompany::destroy($id);
             return $this->response()->success('删除成功');
         }catch(\Exception $exception) {
             return $this->response()->responseException($exception);
         }
     }
-
+    
     /**
      * 根据保险公司代码检查保险公司是否已存在
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\引发一个http请求的错误异常|\App\Http\Controllers\返回一个response的对像
      */
     public function checkCode(Request $request){
-        try{
-            $this->validate($request, [
-                'c_code' => 'required|unique:c_insurance_company,c_code',
-            ]);
-
-            return $this->response()->success('可使用');
-        }catch (\Exception $exception){
-            return $this->response()->error('保险公司已存在', -200);
+        if($request->__isset('c_id') && intval($request->c_id) > 0){
+            $c_id = intval($request->c_id);
+        }else{
+            $c_id = 0;
         }
+        
+        if(!empty($request->c_code)){
+            $bll_company = new BllCompany();
+            $res = $bll_company->codeIsExist($request->c_code, $c_id);
+            
+            if($res){
+                return $this->response()->error('保险公司已存在', -200);
+            }
+        }
+        
+        return $this->response()->success('可使用');
     }
-
+    
     /**
      * 获取系统提供的所有保险公司列表
      *
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function sysCompList(){
         $list = config('insurance_company');
         return $this->response()->success($list);
     }
-
+    
     /**
      * 根据系统保险公司id获取系统保险公司详细信息
      *
      * @param $ic_id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function sysCompInfo($ic_id){
         $info = config('insurance_company.'.(intval($ic_id)-1));
