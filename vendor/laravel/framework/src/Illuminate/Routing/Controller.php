@@ -14,7 +14,17 @@ abstract class Controller
      */
     protected $middleware = [];
     
+    /**
+     * 响应实例
+     * @var ResponseHandler
+     */
     private $resp;
+    
+    /**
+     * 登录用户实例
+     * @var \Illuminate\Config\Repository|mixed
+     */
+    protected $LoginUser;
     
     /**
      * 绑定Http响应对象

@@ -8,11 +8,6 @@ use Illuminate\Routing\Controller;
 
 class AccountController extends Controller
 {
-    /**
-     * 登录用户实例
-     * @var \Illuminate\Config\Repository|mixed
-     */
-    protected $LoginUser;
     
     /**
      * Display a listing of the resource.
@@ -101,6 +96,11 @@ class AccountController extends Controller
             'password' => 'required|string',
             'newpassword' => 'required|string',
             'verifypassword' => 'required|string'
+        ],[
+            'u_name.required' => '用户名不能为空',
+            'password.required' => '原密码不能为空',
+            'newpassword.required'=>'新密码不能为空',
+            'verifypassword.required'=>'重复密码不能为空',
         ]);
         if($validate->fails())
         {
