@@ -51,7 +51,7 @@ class CompanyController extends Controller{
             'page' => $page,
         );
 
-        $return['data'] = $data;
+        $return['listData'] = $data;
         $return['paramsData'] = $appendData;
 
         return $this->response()->success($return);
@@ -88,6 +88,9 @@ class CompanyController extends Controller{
                 'c_name' => 'required|max:50',
                 'c_short_name' => 'required|max:50',
                 'c_code' => 'required|unique:c_insurance_company,c_code',
+                'c_status' => 'required|integer',
+                'c_start' => 'date',
+                'c_end' => 'date'
             ]);
         }catch (\Exception $exception){
             return $this->response()->error('参数错误', -200);
@@ -97,6 +100,13 @@ class CompanyController extends Controller{
         $company->c_name = $request->c_name;
         $company->c_short_name = $request->c_short_name;
         $company->c_code = $request->c_code;
+        $company->c_status = $request->c_status;
+        
+        if($request->__isset('c_start'))
+            $company->c_start = $request->c_start;
+        
+        if($request->__isset('c_end'))
+            $company->c_end = $request->c_end;
 
         if($request->__isset('c_tel')){
             if(!empty($request->c_tel) && !preg_match('/^1[3|4|5|7|8]\d{9}$/', $request->c_tel)){
@@ -111,7 +121,7 @@ class CompanyController extends Controller{
 
         try{
             $rs = $company->save();
-            return $this->response()->success('保存成功');
+            return $this->response()->success('添加成功');
         }catch (\Exception $exception){
             return $this->response()->responseException($exception);
         }
@@ -126,7 +136,11 @@ class CompanyController extends Controller{
     public function show($id){
         $c = new MdlCompany();
         $res = $c->findOne(intval($id));
-        return $this->response()->success($res);
+        
+        if(empty($res))
+            return $this->response()->error('无数据', -200);
+        else
+            return $this->response()->success($res);
     }
 
     /**
@@ -152,6 +166,9 @@ class CompanyController extends Controller{
                 'c_name' => 'required|max:50',
                 'c_short_name' => 'required|max:50',
                 'c_code' => 'required|unique:c_insurance_company,c_code,'.$id.',c_id',
+                'c_status' => 'required|integer',
+                'c_start' => 'date',
+                'c_end' => 'date'
             ]);
         }catch (\Exception $exception){
             return $this->response()->error('参数错误', -200);
@@ -195,7 +212,7 @@ class CompanyController extends Controller{
 
         try{
             $rs = $company->where("c_id", $id)->update($data);
-            return $this->response()->success('修改成功');
+            return $this->response()->success('编辑成功');
         }catch (\Exception $exception){
             return $this->response()->responseException($exception);
         }

@@ -22,7 +22,7 @@ class Company extends Model{
     }
 
     public function findOne($id){
-        $data = \DB::select("select * from ".$this->getTable()." where c_id=:c_id", ['c_id' => $id]);
-        return $data;
+        $data = \DB::select("select * from ".$this->getTable()." where c_id=:c_id limit 1", ['c_id' => $id]);
+        return empty($data) ? [] : $data[0];
     }
 }
