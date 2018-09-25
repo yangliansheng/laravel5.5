@@ -23,6 +23,6 @@ class Product extends Model{
 
     public function findOne($id){
         $data = \DB::select("select * from " . $this->getTable() . " where " . $this->primaryKey . "=?", [$id]);
-        return $data;
+        return empty($data) ? [] : $data[0];
     }
 }

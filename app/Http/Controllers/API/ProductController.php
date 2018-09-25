@@ -10,69 +10,53 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Bll\Common\Product\Products;
 use App\Model\Product as MdlProduct;
+use App\Bll\Common\Product\ProductRates;
 use App\Model\ProductRate as MdlProdRate;
 
 class ProductController extends Controller{
     
     /**
-     * 获取保险产品列表 带条件搜索和分页
+     * 带搜索和分页的保险产品列表
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function list(Request $request){
         $search = [];
 
-        if($request->__isset('search_cid'))
+        if($request->__isset('search_cid') && intval($request->search_cid) > 0)
             $search['c_id'] = intval($request->search_cid);
 
-        if($request->__isset('search_name'))
+        if($request->__isset('search_name') && trim($request->search_name) !== '')
             $search['p_name'] = trim($request->search_name);
+    
+        if($request->__isset('search_code') && trim($request->search_code) !== '')
+            $search['p_code'] = trim($request->search_code);
 
-        if($request->__isset('search_property'))
+        if($request->__isset('search_property') && intval($request->search_property) !== '')
             $search['p_property'] = intval($request->search_property);
 
-        if($request->__isset('search_status'))
+        if($request->__isset('search_status') && intval($request->search_status) !== '')
             $search['p_status'] = intval($request->search_status);
 
         $perPage = $request->perPage ? $request->perPage : 10;
         $page = $request->page ? $request->page : 1;
 
-        $data = MdlProduct::select(['*'])
-            ->where(function ($query) use ($search) {
-                if (isset($search['c_id']) && !empty($search['c_id'])) {
-                    $query->where('c_id', '=', $search['c_id']);
-                }
-            })
-            ->where(function ($query) use ($search) {
-                if (isset($search['p_name']) && !empty($search['p_name'])) {
-                    $query->where('p_name', 'like', '%' . $search['p_name'] . '%');
-                }
-            })
-            ->where(function ($query) use ($search) {
-                if (isset($search['p_property'])) {
-                    $query->where('p_property', '=', $search['p_property']);
-                }
-            })
-            ->where(function ($query) use ($search) {
-                if (isset($search['p_status'])) {
-                    $query->where('p_status', '=', $search['p_status']);
-                }
-            })
-            ->orderBy('p_id', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
+        $data = Products::getProductList($search, $perPage, $page);
 
         //追加额外参数，例如搜索条件
         $appendData = array(
             'search_cid' => empty($search['c_id']) ? '' : $search['c_id'],
-            'search_name' => empty($search['p_name']) ? '' : $search['p_name'],
+            'search_name' => !isset($search['p_name']) ? '' : $search['p_name'],
             'search_property' => !isset($search['p_property']) ? '' : $search['p_property'],
             'search_status' => isset($search['p_status']) ? $search['p_status'] : '',
+            'search_code' => !isset($search['p_code']) ? '' : $search['p_code'],
             'perPage' => $perPage,
         );
 
-        $return['data'] = $data;
+        $return['listData'] = $data;
         $return['paramsData'] = $appendData;
 
         return $this->response()->success($return);
@@ -81,7 +65,7 @@ class ProductController extends Controller{
     /**
      * 获取全部保险产品列表
      *
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function index(){
         $data = MdlProduct::all();
@@ -97,7 +81,7 @@ class ProductController extends Controller{
      * 添加产品
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function store(Request $request){
         try{
@@ -144,17 +128,27 @@ class ProductController extends Controller{
     }
     
     /**
-     * 显示指定保险产品详情信息
+     * 保险产品详情
      *
      * @param $id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function show($id){
         $p = new MdlProduct();
         $res = $p->findOne(intval($id));
-        return $this->response()->success($res);
+        
+        if(empty($res))
+            return $this->response()->error('无数据', -200);
+        else
+            return $this->response()->success($res);
     }
     
+    /**
+     * 跳转到编辑产品详情页
+     *
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function edit($id){
         //跳到编辑view
         $prod = new MdlProduct();
@@ -167,7 +161,7 @@ class ProductController extends Controller{
      *
      * @param Request $request
      * @param $id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function update(Request $request, $id){
         try{
@@ -192,8 +186,8 @@ class ProductController extends Controller{
         $data['p_pay_time'] = intval($request->p_pay_time);
         $data['p_pay_way'] = intval($request->p_pay_way);
     
-        if($request->__isset('c_short_name')){
-            $data['c_short_name'] = $request->c_short_name;
+        if($request->__isset('p_short_name')){
+            $data['p_short_name'] = $request->p_short_name;
         }
     
         if($request->__isset('p_property')){
@@ -253,7 +247,7 @@ class ProductController extends Controller{
      * Remove the specified resource from storage.
      *
      * @param $id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function destroy($id)
     {
@@ -270,67 +264,45 @@ class ProductController extends Controller{
      * 产品佣金费率列表 带条件搜索和分页
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Controllers\返回一个response的对像
      */
     public function prodRateList(Request $request){
         $search = [];
     
-        if($request->__isset('search_cid'))
+        if($request->__isset('search_cid') && $request->search_cid !== '')
             $search['c_id'] = intval($request->search_cid);
     
-        if($request->__isset('search_name'))
+        if($request->__isset('search_name') && trim($request->search_name) !== '')
             $search['p_name'] = trim($request->search_name);
     
-        if($request->__isset('search_code'))
+        if($request->__isset('search_code') && trim($request->search_code) !== '')
             $search['p_code'] = trim($request->search_code);
     
         $perPage = $request->perPage ? $request->perPage : 10;
         $page = $request->page ? $request->page : 1;
-    
-        $data = MdlProduct::select(['p_id', 'c_id', 'p_code', 'p_name', 'p_short_name', 'add_time', 'update_time'])
-            ->where(function ($query) use ($search) {
-                if (isset($search['c_id']) && !empty($search['c_id'])) {
-                    $query->where('c_id', '=', $search['c_id']);
-                }
-            })
-            ->where(function ($query) use ($search) {
-                if (isset($search['p_name']) && !empty($search['p_name'])) {
-                    $query->where('p_name', 'like', '%' . $search['p_name'] . '%');
-                }
-            })
-            ->where(function ($query) use ($search) {
-                if (isset($search['p_code'])) {
-                    $query->where('p_code', 'like',  '%' . $search['p_code'] . '%');
-                }
-            })
-            ->orderBy('p_id', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
+        
+        $data = Products::getProductList($search, $perPage, $page);
     
         if(!empty($data->items())){
             $p_ids = array_column($data->items(), 'p_id');
-            $rate = \DB::table('c_p_rate')->whereIn('p_id', $p_ids)->get();
-            
-            if(!empty($rate)){
-                foreach ($rate as $item) {
-                    $d[$item->p_id] = $item->r_id;
-                }
-            }
+            $rateBll = new ProductRates();
+            $rate = $rateBll->getRatesByPIds($p_ids);
     
             foreach ($data->items() as $key => $value) {
-                $data->items()[$key]['r_id'] = isset($d[$value['p_id']]) ? $d[$value['p_id']] : 0;
+                $data->items()[$key]['r_id'] = isset($rate[$value['p_id']]) ? $rate[$value['p_id']] : 0;
             }
         }
     
         //追加额外参数，例如搜索条件
         $appendData = array(
             'search_cid' => empty($search['c_id']) ? '' : $search['c_id'],
-            'search_name' => empty($search['p_name']) ? '' : $search['p_name'],
-            'search_property' => !isset($search['p_code']) ? '' : $search['p_code'],
+            'search_name' => !isset($search['p_name']) ? '' : $search['p_name'],
+            'search_code' => !isset($search['p_code']) ? '' : $search['p_code'],
             'perPage' => $perPage,
             'page' => $page
         );
 
-        $return['data'] = $data;
+        $return['listData'] = $data;
         $return['paramsData'] = $appendData;
     
         return $this->response()->success($return);
@@ -343,19 +315,17 @@ class ProductController extends Controller{
      * @return \App\Http\Controllers\返回一个response的对像|\App\Http\Controllers\返回错误异常
      */
     public function prodRateInfo($id){
-//        $pr = new MdlProdRate();
-//        $res = $pr->findOne(intval($id));
-        try {
-            $rs = MdlProdRate::findOrFail($id);
-            
-            if(!empty($rs['r_data'])){
-                $rs['r_data'] = json_decode($rs['r_data'], true);
-            }
-            
-            return $this->response()->success($rs);
-        } catch (\Exception $exception) {
-            return $this->response()->responseException($exception);
+        $pr = new MdlProdRate();
+        $res = $pr->findOne(intval($id));
+        
+        if(empty($res))
+            return $this->response()->error('无数据', -200);
+        
+        if(!empty($res->r_data)){
+            $res->r_data = json_decode($res->r_data, true);
         }
+            
+        return $this->response()->success($res);
     }
     
     /**
@@ -367,15 +337,20 @@ class ProductController extends Controller{
     public function prodRateEdit($id){
         if(intval($id) <= 0)
             return $this->response()->error('参数错误', -200);
-    
-        $data = MdlProduct::where('p_id', '=', $id)->first(['p_id', 'c_id', 'p_code', 'p_name', 'p_short_name', 'add_time', 'update_time']);
+        
+        $objProduct = new MdlProduct();
+        $data = $objProduct->where('p_id', '=', $id)
+            ->first(['p_id', 'c_id', 'p_code', 'p_name', 'p_short_name']);
+        
         if(empty($data))
-            return $this->response()->error('数据不存在', -200);
+            return $this->response()->error('无数据', -200);
 
         $mdlRate = new MdlProdRate();
-        $rate = $mdlRate->where('p_id', '=', $id)->first(['r_id', 'r_data']);
+        $rate = $mdlRate->where('p_id', '=', $id)->first(['r_id', 'r_data', 'add_time', 'update_time']);
         $data['r_id'] = empty($rate['r_id']) ? 0 : $rate['r_id'];
         $data['r_data'] = [];
+        $data['add_time'] = empty($rate['add_time']) ? '' : $rate['add_time'];
+        $data['update_time'] = empty($rate['update_time']) ? '' : $rate['update_time'];
 
         if (!empty($rate['r_data'])) {
             $r_data = json_decode($rate['r_data'], true);
@@ -383,7 +358,6 @@ class ProductController extends Controller{
         }
         
         return $this->response()->success($data);
-//        return view('rate.add', ['data' => $data]);//跳到产品佣金费率编辑页面
     }
     
     /**
@@ -398,36 +372,37 @@ class ProductController extends Controller{
         else
             $p_id = (int)$request->p_id;
     
-        $p_row = MdlProduct::where('p_id', '=', $p_id)->first();
+        $objProduct = new MdlProduct();
+        $p_row = $objProduct->where('p_id', '=', $p_id)->first();
         if(empty($p_row)){
-            return $this->response()->error('数据不存在', -200);
+            return $this->response()->error('无数据', -200);
         }
+    
+        $objProdRate = new MdlProdRate();
+        $r_row = $objProdRate->where('p_id', '=', $p_id)->first();
         
-        $r_row = MdlProdRate::where('p_id', '=', $p_id)->first();
         if($r_row){
             $data['r_data'] = empty($request->r_data) ? '' : $request->r_data;
             $data['update_time'] = date('Y-m-d H:i:s');
             
             try {
-                MdlProdRate::where('p_id', '=', $p_id)->update($data);
+                $objProdRate->where('p_id', '=', $p_id)->update($data);
                 return $this->response()->success('编辑成功');
             }catch (\Exception $exception){
                 return $this->response()->responseException($exception);
             }
         }else{
-            $mdlRate = new MdlProdRate();
-            $mdlRate->p_id = (int)$request->p_id;
-            $mdlRate->r_data = empty($request->r_data) ? '' : $request->r_data;
-            $mdlRate->add_time = date('Y-m-d H:i:s');
-            $mdlRate->update_time = date('Y-m-d H:i:s');
+            $objProdRate->p_id = (int)$request->p_id;
+            $objProdRate->r_data = empty($request->r_data) ? '' : $request->r_data;
+            $objProdRate->add_time = date('Y-m-d H:i:s');
+            $objProdRate->update_time = date('Y-m-d H:i:s');
             
             try {
-                $mdlRate->save();
+                $objProdRate->save();
                 return $this->response()->success('添加成功');
             }catch (\Exception $exception){
                 return $this->response()->responseException($exception);
             }
         }
-        
     }
 }

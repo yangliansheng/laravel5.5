@@ -23,6 +23,6 @@ class Policy extends Model{
     
     public function findOne($s_id){
         $data = \DB::select("select * from ".$this->getTable()." where " . $this->primaryKey . "=?", [$s_id]);
-        return $data;
+        return empty($data) ? [] : $data[0];
     }
 }

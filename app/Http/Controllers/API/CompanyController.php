@@ -25,16 +25,16 @@ class CompanyController extends Controller{
     public function list(Request $request){
         $search = [];
 
-        if($request->__isset('search_name'))
+        if($request->__isset('search_name') && trim($request->search_name) !== '')
             $search['c_name'] = $request->search_name;
 
-        if($request->__isset('search_short_name'))
+        if($request->__isset('search_short_name') && trim($request->search_short_name) !== '')
             $search['c_short_name'] = $request->search_short_name;
 
-        if($request->__isset('search_code'))
+        if($request->__isset('search_code') && trim($request->search_code) !== '')
             $search['c_code'] = $request->search_code;
 
-        if($request->__isset('search_status'))
+        if($request->__isset('search_status') && trim($request->search_status) !== '')
             $search['c_status'] = (int)$request->search_status;
 
         $perPage = $request->perPage ? $request->perPage : 2;
@@ -43,9 +43,9 @@ class CompanyController extends Controller{
         
         //追加额外参数，例如搜索条件
         $appendData = array(
-            'search_name' => empty($search['c_name']) ? '' : $search['c_name'],
-            'search_short_name' => empty($search['c_short_name']) ? '' : $search['c_short_name'],
-            'search_code' => empty($search['c_code']) ? '' : $search['c_code'],
+            'search_name' => !isset($search['c_name']) ? '' : $search['c_name'],
+            'search_short_name' => !isset($search['c_short_name']) ? '' : $search['c_short_name'],
+            'search_code' => !isset($search['c_code']) ? '' : $search['c_code'],
             'search_status' => isset($search['c_status']) ? $search['c_status'] : '',
             'perPage' => $perPage,
             'page' => $page,

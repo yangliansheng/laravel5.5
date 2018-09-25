@@ -52,17 +52,17 @@ class Company{
         
         $data = $m_company->select(['*'])
             ->where(function ($query) use ($search) {
-                if (isset($search['c_name']) && !empty($search['c_name'])) {
+                if (isset($search['c_name'])) {
                     $query->where('c_name', 'like', '%' . $search['c_name'] . '%');
                 }
             })
             ->where(function ($query) use ($search) {
-                if (isset($search['c_short_name']) && !empty($search['c_short_name'])) {
+                if (isset($search['c_short_name'])) {
                     $query->where('c_short_name', 'like', '%' . $search['c_short_name'] . '%');
                 }
             })
             ->where(function ($query) use ($search) {
-                if (isset($search['c_code']) && !empty($search['c_code'])) {
+                if (isset($search['c_code'])) {
                     $query->where('c_code', 'like', '%' . $search['c_code'] . '%');
                 }
             })
