@@ -24,7 +24,10 @@ Route::post('/get_token', 'Common\LoginController@get_token')->middleware('token
 Route::post('/get_token', 'Common\LoginController@get_token')->middleware('token');
 Route::post('/refresh_token', 'Common\LoginController@refresh_token')->middleware('token');
 //机构等级路由
+Route::get('/organizationGrade/showList', 'Common\OrganizationGradeController@showList')->middleware('token');
+Route::get('/organizationGrade/listForAddOrganization', 'Common\OrganizationGradeController@showListForAddOrganization')->middleware('token');
 Route::apiResource('organizationGrade', 'Common\OrganizationGradeController')->middleware('token');
+Route::get('organization/showUpList', 'Common\OrganizationController@showUpList')->middleware('token');
 Route::apiResource('organization', 'Common\OrganizationController')->middleware('token');
 //企业保险公司操作路由
 //Route::get('company', 'API\CompanyController@index');

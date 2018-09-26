@@ -8,6 +8,8 @@
 
 namespace App\Bll\Common\Organization;
 
+use App\Bll\Enum\OrganizationGradeFirstEnum;
+use App\Model\LoginUser;
 use App\Model\Organization;
 
 class OrganizationGrade
@@ -54,12 +56,37 @@ class OrganizationGrade
     }
     
     /**
+     * @param LoginUser $user
+     * 获取小于等于当前登录用户机构等级的机构等级
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function getLowLevelAndEqualListByLoginUser(LoginUser $user) {
+        $o_g_id = Organization::getOrganizationsByCode($user->o_code)->o_g_id;
+        $User_Grade = $this->OrganizationGradeModel->find($o_g_id);
+        $list = $this->OrganizationGradeModel->where('o_g_sort','>=',$User_Grade->o_g_sort)->orderBy('o_g_sort')->get();
+        return $list;
+    }
+    
+    /**
+     * @param LoginUser $user
+     * 获取小于等于当前登录用户机构等级的机构等级id集合
+     * @return array
+     */
+    public function getLowLevelAndEqualListIdsByLoginUser(LoginUser $user) {
+        $o_g_id = Organization::getOrganizationsByCode($user->o_code)->o_g_id;
+        $User_Grade = $this->OrganizationGradeModel->find($o_g_id);
+        $list = $this->OrganizationGradeModel->where('o_g_sort','>=',$User_Grade->o_g_sort)->orderBy('o_g_sort')->get();
+        $allow_o_g_ids = array_column($list->toArray(),'o_g_id');
+        return $allow_o_g_ids;
+    }
+    
+    /**
      * 增加默认总公司等级
      * @return bool
      */
     public function addDefault() {
         $this->OrganizationGradeModel->o_g_name = '总公司';
-        $this->OrganizationGradeModel->o_g_sort = 1;
+        $this->OrganizationGradeModel->o_g_sort = OrganizationGradeFirstEnum::总公司;
         $res = $this->OrganizationGradeModel->save();
         return $res;
     }
@@ -122,5 +149,28 @@ class OrganizationGrade
         }
         $res = $this->OrganizationGradeModel->where('o_g_id',$id)->delete();
         return ['res' => $res?$res:false,'msg' => ''];
+    }
+    
+    /**
+     * @param $id
+     * 根据id获取机构类型信息
+     * @return \Illuminate\Database\Eloquent\Model|null|object|static
+     */
+    public static function getOrganizationGradeById($id) {
+        return \App\Model\OrganizationGrade::find($id);
+    }
+    
+    /**
+     * 如果机构不是第一次录入则返回除去总公司的类型列表是第一次的话返回全部
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function showListForAddOrganization() {
+        if(Organization::all()->count()){
+            $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
+            unset($list[0]);
+        }else{
+            $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
+        }
+        return $list;
     }
 }

@@ -27,6 +27,12 @@ abstract class Controller
     protected $LoginUser;
     
     /**
+     * 登录系统用户实例
+     * @var \Illuminate\Config\Repository|mixed
+     */
+    protected $AdminUser;
+    
+    /**
      * 绑定Http响应对象
      * Controller constructor.
      */
@@ -103,5 +109,6 @@ abstract class Controller
      */
     protected function bindingUser() {
         $this->LoginUser =  config('user.loginer');
+        $this->AdminUser =  config('user.adminer');
     }
 }

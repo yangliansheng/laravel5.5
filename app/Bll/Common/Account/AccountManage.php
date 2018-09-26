@@ -7,11 +7,27 @@
  */
 namespace App\Bll\Common\Account;
 
+use App\Bll\Enum\AdminerRoleIdEnum;
+
 class AccountManage
 {
+    /**
+     * 登录用户
+     * @var \App\Model\LoginUser|null
+     */
     protected $User;
     
+    /**
+     * 用户数据库模型
+     * @var \App\Model\LoginUser
+     */
     protected $Model;
+    
+    /**
+     * 超管角色标识ID
+     * @var int
+     */
+    private $AdminerId = AdminerRoleIdEnum::超级管理员;
     
     /**
      * AccountManage constructor.
@@ -20,7 +36,6 @@ class AccountManage
      */
     public function __construct(\App\Model\LoginUser $LoginUser)
     {
-        
         $this->User = $LoginUser;
         $this->Model = new \App\Model\LoginUser();
     }
@@ -43,6 +58,17 @@ class AccountManage
         }
         $res = $this->Model->where('u_name',$this->User->u_name)->update(['u_password'=>$params['newpassword']]);
         return ['res' => $res?$res:false,'msg' => ''];
+    }
+    
+    /**
+     * 是否超级管理员身份
+     * @return bool
+     */
+    public function isAdminer() {
+        if($this->User->role_id == $this->AdminerId) {
+            return true;
+        }
+        return false;
     }
     
     

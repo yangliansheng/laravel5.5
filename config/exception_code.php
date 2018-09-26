@@ -13,5 +13,6 @@ return [
     -101=>'未登记的访问用户',
     -1  =>'非法的公司编号',
     -2  =>'登录账号或密码错误',
-    -200=>'入参校验错误'
+    -200=>'入参校验错误',
+    -102=>'权限不足'
 ]+\Symfony\Component\HttpFoundation\Response::$statusTexts;
