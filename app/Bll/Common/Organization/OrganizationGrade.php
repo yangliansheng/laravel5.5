@@ -46,12 +46,16 @@ class OrganizationGrade
      * 获取机构等级列表
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function getList() {
+    public function getList($params = []) {
         $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
         if(!count($list)) {
             $this->addDefault();
         }
-        $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
+        if(isset($params['page']) && $params['page']) {
+            $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->paginate($this->OrganizationGradeModel->getPerPage());
+        }else{
+            $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
+        }
         return $list;
     }
     
@@ -60,10 +64,14 @@ class OrganizationGrade
      * 获取小于等于当前登录用户机构等级的机构等级
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function getLowLevelAndEqualListByLoginUser(LoginUser $user) {
+    public function getLowLevelAndEqualListByLoginUser(LoginUser $user, $params = []) {
         $o_g_id = Organization::getOrganizationsByCode($user->o_code)->o_g_id;
         $User_Grade = $this->OrganizationGradeModel->find($o_g_id);
-        $list = $this->OrganizationGradeModel->where('o_g_sort','>=',$User_Grade->o_g_sort)->orderBy('o_g_sort')->get();
+        if(isset($params['page']) && $params['page']) {
+            $list = $this->OrganizationGradeModel->where('o_g_sort','>=',$User_Grade->o_g_sort)->orderBy('o_g_sort')->paginate($this->OrganizationGradeModel->getPerPage());
+        }else{
+            $list = $this->OrganizationGradeModel->where('o_g_sort','>=',$User_Grade->o_g_sort)->orderBy('o_g_sort')->get();
+        }
         return $list;
     }
     
@@ -164,12 +172,14 @@ class OrganizationGrade
      * 如果机构不是第一次录入则返回除去总公司的类型列表是第一次的话返回全部
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function showListForAddOrganization() {
-        if(Organization::all()->count()){
-            $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
-            unset($list[0]);
+    public function showListForAddOrganization($params) {
+        if(isset($params['page'])&&$params['page']) {
+            $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->paginate($this->OrganizationGradeModel->getPerPage());
         }else{
             $list = $this->OrganizationGradeModel->orderBy('o_g_sort')->get();
+        }
+        if(Organization::all()->count()){
+            unset($list[0]);
         }
         return $list;
     }

@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class AgentTypeEnum
+class AgentTypeEnum extends Enum
 {
     const 身份证 = 0;
     const 驾驶证 = 1;

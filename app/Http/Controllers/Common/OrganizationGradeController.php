@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Bll\Common\Account\AccountManage;
 use App\Bll\Common\Organization\OrganizationGrade;
 use App\Bll\Enum\LogTypeEnum;
 use App\Model\OrganizationGradeLog;
@@ -18,14 +17,14 @@ class OrganizationGradeController extends Controller
      * 如果登录用户不是超管身份则只能查看本类型及等级之下的类型
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->getIsAdminer();
         $grade = new OrganizationGrade();
         if($this->isAdminer) {
-            $list = $grade->getList($this->LoginUser);
+            $list = $grade->getList($request->all());
         }else{
-            $list = $grade->getLowLevelAndEqualListByLoginUser($this->LoginUser);
+            $list = $grade->getLowLevelAndEqualListByLoginUser($this->LoginUser,$request->all());
         }
         return $this->response()->success($list);
     }
@@ -34,10 +33,10 @@ class OrganizationGradeController extends Controller
      * 获取小于等于当前登录用户机构等级的机构等级
      * @return \App\Http\Controllers\返回一个response的对像
      */
-    public function showList() {
+    public function showList(Request $request) {
         $grade = new OrganizationGrade();
         $this->bindingUser();
-        $res = $grade->getLowLevelAndEqualListByLoginUser($this->LoginUser);
+        $res = $grade->getLowLevelAndEqualListByLoginUser($this->LoginUser,$request->all());
         return $this->response()->success($res);
     }
     
@@ -45,9 +44,9 @@ class OrganizationGradeController extends Controller
      * 给录入机构使用的机构类型list接口
      * @return \App\Http\Controllers\返回一个response的对像
      */
-    public function showListForAddOrganization() {
+    public function showListForAddOrganization(Request $request) {
         $grade = new OrganizationGrade();
-        $list = $grade->showListForAddOrganization();
+        $list = $grade->showListForAddOrganization($request->all());
         return $this->response()->success($list);
     }
     

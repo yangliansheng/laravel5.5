@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class LogTypeEnum
+class LogTypeEnum extends Enum
 {
     const 新增 = 1;
     const 修改 = 2;

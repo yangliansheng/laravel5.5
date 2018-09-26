@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class OrganizationStatus
+class OrganizationStatus extends Enum
 {
     const 关停 = 0;
     const 营业 = 1;

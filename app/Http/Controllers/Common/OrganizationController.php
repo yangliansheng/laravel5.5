@@ -59,10 +59,10 @@ class OrganizationController extends Controller
      * 获取上级机构列表(获取所有的未关停的机构信息)
      * @return \App\Http\Controllers\引发一个http请求的错误异常|\App\Http\Controllers\返回一个response的对像
      */
-    public function showUpList() {
+    public function showUpList(Request $request) {
         $this->bindingUser();
         $grade = new Organizations($this->LoginUser);
-        $res = $grade->getAllNotClose();
+        $res = $grade->getAllNotClose($request->all());
         if($res['res']) {
             return $this->response()->success($res['data']);
         }else{

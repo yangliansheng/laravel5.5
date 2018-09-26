@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class TeamStatusEnum
+class TeamStatusEnum extends Enum
 {
     const 组织状态_无效 = 0;
     const 组织状态_有效 = 1;

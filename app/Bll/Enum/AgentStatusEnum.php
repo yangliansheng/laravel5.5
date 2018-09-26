@@ -8,7 +8,7 @@
 
 namespace App\Bll\Enum;
 
-class AgentStatusEnum
+class AgentStatusEnum extends Enum
 {
     const 待入司 = 0;
     const 在职 = 1;

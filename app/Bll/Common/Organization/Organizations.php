@@ -99,7 +99,11 @@ class Organizations
         if($params['o_name'] !== '') {
             $OrganizationModel = $OrganizationModel->where('o_name', 'like', '%'.$params['o_name'].'%');
         }
-        $list = $OrganizationModel->orderBy('o_depth')->get();
+        if(isset($params['page'])&&$params['page']) {
+            $list = $OrganizationModel->orderBy('o_depth')->paginate($this->OrganizationModel->getPerPage());
+        }else{
+            $list = $OrganizationModel->orderBy('o_depth')->get();
+        }
         return ['res'=>true,'data'=>$list];
     }
     
@@ -107,8 +111,13 @@ class Organizations
      * 获取所有未关停的机构的集合
      * @return array
      */
-    public function getAllNotClose() {
-        $list = $this->OrganizationModel->where('o_status',OrganizationStatus::营业)->get();
+    public function getAllNotClose($params = []) {
+        if(isset($params['page'])&&$params['page']) {
+            $list = $this->OrganizationModel->where('o_status',OrganizationStatus::营业)->paginate($this->OrganizationModel->getPerPage());
+        }else{
+            $list = $this->OrganizationModel->where('o_status',OrganizationStatus::营业)->get();
+        }
+        
         return ['res'=>true,'data'=>$list];
     }
     

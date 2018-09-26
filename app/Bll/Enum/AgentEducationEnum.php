@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class AgentEducationEnum
+class AgentEducationEnum  extends Enum
 {
     const 小学 = 0;
     const 初中 = 1;

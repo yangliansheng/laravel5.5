@@ -7,8 +7,8 @@
  */
 namespace App\Bll\Enum;
 
-class TeamGradeEnum
+class TeamGradeEnum extends Enum
 {
     const 部 = 0;
-    const 区 = 0;
+    const 区 = 1;
 }

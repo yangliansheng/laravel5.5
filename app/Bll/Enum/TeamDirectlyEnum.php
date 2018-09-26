@@ -7,8 +7,9 @@
  */
 namespace App\Bll\Enum;
 
-class TeamDirectlyEnum
+class TeamDirectlyEnum extends Enum
 {
-    const 是否直辖_否 = 0;
-    const 是否直辖_是 = 1;
+    //是否直辖_
+    const 否 = 0;
+    const 是 = 1;
 }

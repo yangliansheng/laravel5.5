@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class AgentRejoinEnum
+class AgentRejoinEnum  extends Enum
 {
     const 二次入司_否 = 0;
     const 二次入司_是 = 1;

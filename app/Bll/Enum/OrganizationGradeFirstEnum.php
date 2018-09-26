@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class OrganizationGradeFirstEnum
+class OrganizationGradeFirstEnum extends Enum
 {
     const 总公司 = 1;
 }

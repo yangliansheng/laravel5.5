@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class AgentSexEnum
+class AgentSexEnum extends Enum
 {
     const 男 = 1;
     const 女 = 0;

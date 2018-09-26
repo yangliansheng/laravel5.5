@@ -7,7 +7,7 @@
  */
 namespace App\Bll\Enum;
 
-class AdminerRoleIdEnum
+class AdminerRoleIdEnum extends Enum
 {
     const 超级管理员 = -1;
 }
