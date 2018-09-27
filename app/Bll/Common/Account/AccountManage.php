@@ -49,7 +49,7 @@ class AccountManage
         if($params['u_name'] != $this->User->u_name) {
             return ['res' => false,'msg' => '非法的修改'];
         }
-        $oldpassword = $this->Model->getAuthIdentifierName(['u_name'=>$this->User->u_name]);
+        $oldpassword = $this->Model->where(['u_name'=>$this->User->u_name])->first()->u_password;
         if($params['newpassword'] == $oldpassword) {
             return ['res' => true,'msg' => ''];
         }

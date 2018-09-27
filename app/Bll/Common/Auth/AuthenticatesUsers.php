@@ -43,12 +43,13 @@ trait AuthenticatesUsers
             if($AdminUser) {
                 $DataBase = 'mysql_'.$AdminUser->c_prefix;
                 config(['database.module_connection'=>$DataBase]);
+                $LoginUser = (object)array();
                 if (Auth::guard('api')->attempt(['u_name'=>$request->u_name,'u_password'=>$request->u_password])) {
                     $LoginUser = LoginUser::where('u_name',$request->u_name)
                         ->where('u_password',$request->u_password)
                         ->first();
                 }
-                if($LoginUser) {
+                if(isset($LoginUser) && $LoginUser instanceof LoginUser) {
                     new Model_Auth($AdminUser,$LoginUser);
                     app()->singleton('ModelAuth', function($ModelAuth){
                         return $ModelAuth;

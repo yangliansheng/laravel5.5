@@ -12,6 +12,7 @@ use App\Bll\Common\Organization\Organizations;
 use App\Bll\Enum\TeamDirectlyEnum;
 use App\Bll\Enum\TeamExistEnum;
 use App\Bll\Enum\TeamGradeEnum;
+use App\Bll\Enum\TeamStatusEnum;
 use App\Model\Agent;
 use App\Model\JobGrade;
 use App\Model\Organization;
@@ -146,15 +147,27 @@ class Team
      * 根据登录用户获取可管理的组织集合
      * @return $this|\Illuminate\Database\Eloquent\Collection|static[]
      */
-    protected function getAllAllowTeamsByLoginUser($isAdminer) {
+    public function getAllAllowTeamsByLoginUser($isAdminer,$params = []) {
         $Teams = $this->Teams;
         if($isAdminer) {
-            $Teams = $Teams->get();
-        }else{
+            if(isset($params['t_name']) && $params['t_name']) {
+                $Teams = $Teams->where('t_name','like','%'.$params['t_name'].'%');
+            }else{
+                $Teams = $Teams;
+            }
+        }else {
             $Organizations = new Organizations($this->User);
             $allow_organization_ids = $Organizations->getAllowShowOrganizations($isAdminer);
-            $Teams = $Teams->whereIn('o_id',$allow_organization_ids)->get();
-            
+            if(isset($params['t_name']) && $params['t_name']) {
+                $Teams = $Teams->whereIn('o_id',$allow_organization_ids)->where('t_name','like','%'.$params['t_name'].'%');
+            }else{
+                $Teams = $Teams->whereIn('o_id',$allow_organization_ids);
+            }
+        }
+        if(isset($params['page'])&&$params['page']) {
+            $Teams = $Teams->paginate($this->TeamModel->getPerPage());
+        }else{
+            $Teams = $Teams->get();
         }
         return $Teams;
     }
@@ -188,6 +201,58 @@ class Team
            return ['res'=>true,'data'=>$data];
         }
         return ['res'=>false,'msg'=>'无权限查看组织详情'];
+    }
+    
+    /**
+     * @param $id
+     * @param $isAdminer
+     * 注销组织
+     * @return array
+     */
+    public function destroy($id, $isAdminer) {
+        if(in_array($id,array_column($this->getAllAllowTeamsByLoginUser($isAdminer)->toArray(),'t_id'))) {
+            //先无效  再注销   如果是正常的组织   就不能注销
+            if($this->TeamModel->find($id)->t_status != TeamStatusEnum::组织状态_无效) {
+                return ['res'=>false,'msg'=>'组织生效中无法注销'];
+            }
+            //组织下有生效的组织也无法注销
+            $teams = $this->getNotInvalidinDownTeamById($id);
+            if($teams->count()) {
+                return ['res'=>false,'msg'=>'组织下有生效中的组织无法注销'];
+            }
+            //组织下有非离职人员也无法注销
+            if(Agent::getAgentsFromTeamIdsWhereNotDimission(array_column($teams->toArray(),'t_id')+[$id])->count()) {
+                return ['res'=>false,'msg'=>'组织或下辖的组织有在职代理人组织无法注销'];
+            }
+            $res = $this->TeamModel->where('t_id',$id)->update([
+                't_is_exist'=>TeamExistEnum::组织_注销,
+                't_close'=>date('Y-m-d'),
+            ]);
+            return ['res'=>true,'data'=>$res];
+        }
+        return ['res'=>false,'msg'=>'无权限查看组织详情'];
+    }
+    
+    /**
+     * @param $id
+     * 获取组织下非无效的组织集合
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    protected function getNotInvalidinDownTeamById($id) {
+        $thisTeam = $this->TeamModel->find($id);
+        $path = $thisTeam->t_path.','.$id;
+        $Teams = $this->TeamModel->where('t_path','like', $path.'%')->where('t_status','!=',TeamStatusEnum::组织状态_无效);
+        $lists = $Teams->get();
+        return $lists;
+    }
+    
+    
+    public function storeQu($params,$isAdminer) {
+        $Organizations = new Organizations($this->User,$this->SystemUser);
+    }
+    
+    public function storeBu($params,$isAdminer) {
+    
     }
     
 }
