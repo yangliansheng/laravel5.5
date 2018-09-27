@@ -42,7 +42,7 @@ class ResponseHandler {
      * @param int $code 要返回客户端的错误代码
      * @return 引发一个http请求的错误异常
      */
-    public function error ($msg, $code) {
+    public function error ($msg, $code = -200) {
         $result = array();
         $result['message'] = (string)$msg;
         $result['status_code'] = $code;
