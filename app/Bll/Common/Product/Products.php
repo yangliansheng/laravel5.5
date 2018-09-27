@@ -18,6 +18,14 @@ class Products{
         $this->mdlProduct = new Product();
     }
     
+    /**
+     * 根据搜索条件获取产品分页列表
+     *
+     * @param array $search
+     * @param int $perPage
+     * @param int $page
+     * @return mixed
+     */
     public static function getProductList($search = [], $perPage = 10, $page = 1){
         $m_product = new Product();
     

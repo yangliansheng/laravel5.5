@@ -261,6 +261,26 @@ class ProductController extends Controller{
     }
     
     /**
+     * 根据产品代码获取产品信息
+     *
+     * @param Request $request
+     * @return \App\Http\Controllers\引发一个http请求的错误异常|\App\Http\Controllers\返回一个response的对像
+     */
+    public function getInfoByCode(Request $request){
+        if(empty($request->p_code))
+            return $this->response()->error('无数据', -200);
+    
+        $p_code = trim($request->p_code);
+        $mdlPro = new MdlProduct();
+        $info = $mdlPro->where('p_code', '=', $p_code)->get(['p_id', 'p_name', 'p_short_name', 'p_code', 'p_property', 'p_status']);
+
+        if(empty($info[0]))
+            return $this->response()->error('无数据', -200);
+        else
+            return $this->response()->success($info[0]);
+    }
+    
+    /**
      * 产品佣金费率列表 带条件搜索和分页
      *
      * @param Request $request

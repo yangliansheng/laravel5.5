@@ -48,6 +48,7 @@ Route::get('prodRateList', 'API\ProductController@prodRateList');
 Route::get('prodRateInfo/{r_id}', 'API\ProductController@prodRateInfo');
 Route::get('prodRateEdit/{p_id}', 'API\ProductController@prodRateEdit');
 Route::post('prodRateSave', 'API\ProductController@prodRateSave');
+Route::get('prodByCode', 'API\ProductController@getInfoByCode');
 
 //系统管理用户管理
 Route::apiResource('account', 'Common\AccountController');
@@ -55,3 +56,5 @@ Route::post('account/update', 'Common\AccountController@updatePassword')->middle
 
 //企业投保单/保单相关路由
 Route::apiResource('policy', 'API\PolicyController');
+Route::get('getIDCardInfo', 'API\PolicyController@getIDCardInfo');
+Route::get('getBankByCard', 'API\PolicyController@getBankByCard');
