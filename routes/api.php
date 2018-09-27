@@ -29,6 +29,7 @@ Route::get('/organizationGrade/listForAddOrganization', 'Common\OrganizationGrad
 Route::apiResource('organizationGrade', 'Common\OrganizationGradeController')->middleware('token');
 Route::get('organization/showUpList', 'Common\OrganizationController@showUpList')->middleware('token');
 Route::apiResource('organization', 'Common\OrganizationController')->middleware('token');
+Route::get('team/showList', 'Common\TeamController@showList')->middleware('token');
 Route::apiResource('team', 'Common\TeamController')->middleware('token');
 //企业保险公司操作路由
 //Route::get('company', 'API\CompanyController@index');

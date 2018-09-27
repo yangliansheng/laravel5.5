@@ -67,7 +67,66 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if(!isset($request->type)|| !in_array($request->type,[TeamGradeEnum::部,TeamGradeEnum::区])) {
+            return $this->response()->error('请输入正确的新增的组织级别',-200);
+        }
+        switch ($request->type) {
+            case TeamGradeEnum::区: {
+                $rules = [
+                    'o_g_name' => 'required|string|max:10',
+                    'o_g_sort' => 'required|integer|',
+                ];
+                $messages = [
+                    'o_g_name.required' => '机构类型名称不能为空',
+                    'o_g_name.max' => '机构类型名称不能超过十个字符',
+                    'o_g_sort.required' => '机构等级不能为空',
+                ];
+                $funtionName = 'storeQu';
+                break;
+            }
+            case TeamGradeEnum::部: {
+                $rules = [
+                    'o_g_name' => 'required|string|max:10',
+                    'o_g_sort' => 'required|integer|',
+                ];
+                $messages = [
+                    'o_g_name.required' => '机构类型名称不能为空',
+                    'o_g_name.max' => '机构类型名称不能超过十个字符',
+                    'o_g_sort.required' => '机构等级不能为空',
+                ];
+                $funtionName = 'storeBu';
+                break;
+            }
+            default:{
+                return $this->response()->error('请输入正确的新增的组织级别',-200);
+            }
+        }
+        $this->isAllowAction();
+        $validate = \Validator::make($request->all(), $rules,$messages);
+        if($validate->fails())
+        {
+            $msg = implode(',',$validate->errors()->all());
+            return $this->response()->error($msg,-200);
+        }
+        $Team = new Team($this->LoginUser,$this->AdminUser);
+        $res = $Team->$funtionName($request->all(),$this->isAdminer);
+        if($res['res']) {
+            return $this->response()->success('新增完成');
+        }else{
+            return $this->response()->error($res['msg'],-200);
+        }
+    }
+    
+    /**
+     * @param Request $request
+     * 获取根据组织名获取可管理的组织列表
+     * @return \App\Http\Controllers\返回一个response的对像
+     */
+    public function showList(Request $request) {
+        $this->getIsAdminer();
+        $Team = new Team($this->LoginUser,$this->AdminUser);
+        $res = $Team->getAllAllowTeamsByLoginUser($this->isAdminer,$request->all());
+        return $this->response()->success($res);
     }
 
     /**
@@ -109,6 +168,13 @@ class TeamController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $this->getIsAdminer();
+        $Teams = new Team($this->LoginUser,$this->AdminUser);
+        $res = $Teams->destroy($id,$this->isAdminer);
+        if($res['res']) {
+            return $this->response()->success('注销成功');
+        }else{
+            return $this->response()->error($res['msg'],-200);
+        }
     }
 }
